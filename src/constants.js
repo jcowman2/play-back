@@ -10,4 +10,7 @@ export const LEFT = "left";
 export const RIGHT = "right";
 
 export const LOOP_INTERVAL = 10;
-export const OBJ_VELOCITY = 10;
+export const OBJ_VELOCITY = 1000; // units per second
+
+export const GRAVITY_X = 0;
+export const GRAVITY_Y = 0.2;

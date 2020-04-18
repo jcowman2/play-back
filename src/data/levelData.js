@@ -1,5 +1,5 @@
 import { Engine, Render, World, Body } from "matter-js";
-import { DARK, LIGHT, MID_LIGHT } from "../constants";
+import { DARK, LIGHT, MID_LIGHT, GRAVITY_X, GRAVITY_Y } from "../constants";
 
 const DEFAULT_WIDTH = 700;
 
@@ -25,8 +25,8 @@ export class LevelData {
   /** @type number */
   activeObjectIndex;
 
-  // /** @type {{ x: number, y: number }} */
-  // activeObjectVelocity;
+  /** @type string[] */
+  gravityBodies;
 
   /** @type Matter.Render */
   render;
@@ -36,7 +36,7 @@ export class LevelData {
 
   /**
    *
-   * @param {{ [id: string]: (t) => Matter.Body }} bodies
+   * @param {{ [id: string]: (t) => { body: Matter.Body, gravity: boolean }}} bodies
    * @param {string[]} objects
    * @param {{ width: number }} options
    */
@@ -49,20 +49,28 @@ export class LevelData {
   }
 
   preInit = () => {
-    this.engine = Engine.create();
     this.lastRenderedTime = 0;
     this.activeObjectIndex = 0;
 
+    this.engine = Engine.create();
+    this.engine.world.gravity.scale = 0;
+
     const bodiesMap = {};
     const allBodies = [];
+    const gravityBodies = [];
     for (let bodyId in this.initBodies) {
-      const body = this.initBodies[bodyId](this.normalize);
-      console.log(bodyId, body.isStatic);
+      const { body, gravity } = this.initBodies[bodyId](this.normalize);
+
+      if (gravity) {
+        gravityBodies.push(bodyId);
+      }
+
       bodiesMap[bodyId] = body;
       allBodies.push(body);
     }
 
     this.bodies = bodiesMap;
+    this.gravityBodies = gravityBodies;
     World.add(this.engine.world, allBodies);
   };
 
@@ -104,8 +112,21 @@ export class LevelData {
     const delta = newTime - this.lastRenderedTime;
     this.lastRenderedTime = newTime;
 
+    this.updateGravity(delta);
+
     Engine.update(this.engine, delta);
     Render.world(this.render);
+  };
+
+  updateGravity = delta => {
+    for (let key of this.gravityBodies) {
+      const body = this.bodies[key];
+      const force = {
+        x: body.mass * ((GRAVITY_X * delta) / 1000),
+        y: body.mass * ((GRAVITY_Y * delta) / 1000)
+      };
+      Body.applyForce(body, body.position, force);
+    }
   };
 
   normalize = unit => (unit / 100) * this.width;
@@ -158,10 +179,8 @@ export class LevelData {
    * @param {number} vy
    */
   setObjectVelocity = (vx, vy) => {
-    console.log(this.bodies);
     const id = this.objects[this.activeObjectIndex];
     const body = this.bodies[id];
-    console.log(vx, vy, id, body, body.isStatic);
 
     if (!vx && !vy) {
       if (!body.isStatic) {
@@ -177,8 +196,8 @@ export class LevelData {
     }
 
     const vec = {
-      x: vx,
-      y: vy
+      x: this.normalize(vx) / 1000,
+      y: this.normalize(vy) / 1000
     };
 
     Body.setVelocity(body, vec);
