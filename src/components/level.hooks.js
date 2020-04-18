@@ -5,7 +5,8 @@ import {
   LEFT,
   RIGHT,
   LOOP_INTERVAL,
-  OBJ_VELOCITY
+  OBJ_VELOCITY,
+  OBJ_VELOCITY_ANGULAR
 } from "../constants";
 
 export const useTimeControl = stageRef => {
@@ -54,6 +55,9 @@ export const useMoveControl = () => {
   const [movingLeft, setMovingLeft] = React.useState(false);
   const [movingRight, setMovingRight] = React.useState(false);
 
+  const [rotatingCW, setRotatingCW] = React.useState(false);
+  const [rotatingCCW, setRotatingCCW] = React.useState(false);
+
   const moveKeyEventHelper = isPress => direction => {
     switch (direction) {
       case UP:
@@ -72,8 +76,23 @@ export const useMoveControl = () => {
   const handleMoveKeyPress = moveKeyEventHelper(true);
   const handleMoveKeyRelease = moveKeyEventHelper(false);
 
+  const handleRotateKeyPress = cw =>
+    cw ? setRotatingCW(true) : setRotatingCCW(true);
+  const handleRotateKeyRelease = cw =>
+    cw ? setRotatingCW(false) : setRotatingCCW(false);
+
   const objVx = OBJ_VELOCITY * ((movingRight ? 1 : 0) - (movingLeft ? 1 : 0));
   const objVy = OBJ_VELOCITY * ((movingDown ? 1 : 0) - (movingUp ? 1 : 0));
+  const objVa =
+    OBJ_VELOCITY_ANGULAR * ((rotatingCW ? 1 : 0) - (rotatingCCW ? 1 : 0));
 
-  return { handleMoveKeyPress, handleMoveKeyRelease, objVx, objVy };
+  return {
+    handleMoveKeyPress,
+    handleMoveKeyRelease,
+    handleRotateKeyPress,
+    handleRotateKeyRelease,
+    objVx,
+    objVy,
+    objVa
+  };
 };

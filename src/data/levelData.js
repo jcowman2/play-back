@@ -208,7 +208,6 @@ export class LevelData {
         Body.setVelocity(body, { x: 0, y: 0 });
         Body.setStatic(body, true);
       }
-
       return;
     }
 
@@ -222,6 +221,28 @@ export class LevelData {
     };
 
     Body.setVelocity(body, vec);
+  };
+
+  /**
+   * @param {number} va
+   */
+  setObjectAngularVelocity = va => {
+    const id = this.objects[this.activeObjectIndex];
+    const body = this.bodies[id];
+
+    if (!va) {
+      if (!body.isStatic) {
+        Body.setAngularVelocity(body, 0);
+        Body.setStatic(body, true);
+      }
+      return;
+    }
+
+    if (body.isStatic) {
+      Body.setStatic(body, false);
+    }
+
+    Body.setAngularVelocity(body, va / 1000);
   };
 
   freeze = () => {

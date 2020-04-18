@@ -11,6 +11,7 @@ export const RIGHT = "right";
 
 export const LOOP_INTERVAL = 10;
 export const OBJ_VELOCITY = 1000; // units per second
+export const OBJ_VELOCITY_ANGULAR = 75;
 
 /* Spirit */
 export const GRAVITY_X = 0;

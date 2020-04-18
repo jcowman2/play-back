@@ -13,10 +13,23 @@ const KEYDOWN_KEYS = [
   "up",
   "left",
   "down",
-  "right"
+  "right",
+  "q",
+  "e"
 ];
 
-const KEYUP_KEYS = ["w", "a", "s", "d", "up", "left", "down", "right"];
+const KEYUP_KEYS = [
+  "w",
+  "a",
+  "s",
+  "d",
+  "up",
+  "left",
+  "down",
+  "right",
+  "q",
+  "e"
+];
 
 /**
  *
@@ -25,7 +38,9 @@ const KEYUP_KEYS = ["w", "a", "s", "d", "up", "left", "down", "right"];
  *  onRestart: () => void,
  *  onToggleSelected: () => void,
  *  onMoveKeyPress: (direction: string) => void,
- *  onMoveKeyRelease: (direction: string) => void
+ *  onMoveKeyRelease: (direction: string) => void,
+ *  onRotateKeyPress: (clockwise: boolean) => void,
+ *  onRotateKeyRelease: (clockwise: boolean) => void
  * }>} props
  */
 function LevelKeyHandler(props) {
@@ -34,7 +49,9 @@ function LevelKeyHandler(props) {
     onRestart,
     onToggleSelected,
     onMoveKeyPress,
-    onMoveKeyRelease
+    onMoveKeyRelease,
+    onRotateKeyPress,
+    onRotateKeyRelease
   } = props;
 
   return (
@@ -61,6 +78,10 @@ function LevelKeyHandler(props) {
             case "d":
             case "right":
               return onMoveKeyPress(RIGHT);
+            case "q":
+              return onRotateKeyPress(false);
+            case "e":
+              return onRotateKeyPress(true);
             default:
               return;
           }
@@ -83,6 +104,10 @@ function LevelKeyHandler(props) {
             case "d":
             case "right":
               return onMoveKeyRelease(RIGHT);
+            case "q":
+              return onRotateKeyRelease(false);
+            case "e":
+              return onRotateKeyRelease(true);
             default:
               return;
           }

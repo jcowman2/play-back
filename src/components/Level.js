@@ -19,8 +19,11 @@ function Level(props) {
   const {
     handleMoveKeyPress,
     handleMoveKeyRelease,
+    handleRotateKeyPress,
+    handleRotateKeyRelease,
     objVx,
-    objVy
+    objVy,
+    objVa
   } = useMoveControl();
 
   const handleToggleSelected = () => {
@@ -48,6 +51,7 @@ function Level(props) {
         time={time}
         objVx={objVx}
         objVy={objVy}
+        objVa={objVa}
       />
       <LevelKeyHandler
         onFreezeUnfreeze={handleFreezeUnfreeze}
@@ -58,6 +62,8 @@ function Level(props) {
         onToggleSelected={handleToggleSelected}
         onMoveKeyPress={handleMoveKeyPress}
         onMoveKeyRelease={handleMoveKeyRelease}
+        onRotateKeyPress={handleRotateKeyPress}
+        onRotateKeyRelease={handleRotateKeyRelease}
       />
     </>
   );

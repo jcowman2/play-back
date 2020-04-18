@@ -5,7 +5,8 @@ export const useLevelDataTriggers = (
   time,
   stageRef,
   objVx,
-  objVy
+  objVy,
+  objVa
 ) => {
   React.useEffect(() => {
     if (!stageRef.current || !levelData) {
@@ -27,4 +28,11 @@ export const useLevelDataTriggers = (
     }
     levelData.setObjectVelocity(objVx, objVy);
   }, [levelData, objVx, objVy]);
+
+  React.useEffect(() => {
+    if (!levelData || objVa === undefined) {
+      return;
+    }
+    levelData.setObjectAngularVelocity(objVa);
+  }, [levelData, objVa]);
 };

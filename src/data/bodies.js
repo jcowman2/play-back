@@ -24,7 +24,9 @@ export const wall = (x, y, width, height, angle = 0) =>
     body: Bodies.rectangle(t(x), t(y), t(width), t(height), {
       isStatic: true,
       angle,
-      render: { fillStyle: MID_LIGHT }
+      render: { fillStyle: MID_LIGHT },
+      friction: 0,
+      frictionAir: 0
     }),
     gravity: false
   }));
