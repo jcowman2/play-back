@@ -7,10 +7,14 @@ import { LevelData } from "../data/levelData";
  *  levelData: LevelData,
  *  time: number
  * }>} props
+ *
+ * @param { React.Ref<{
+ *  restart: () => void
+ * }>} ref
  */
-function Stage(props) {
+function Stage(props, ref) {
   const { levelData, time } = props;
-  const stageRef = React.createRef();
+  const stageRef = React.useRef();
 
   React.useEffect(() => {
     if (!stageRef.current || !levelData) {
@@ -26,7 +30,14 @@ function Stage(props) {
     levelData.updateForward(time);
   }, [levelData, time]);
 
+  React.useImperativeHandle(ref, () => ({
+    restart: () => {
+      levelData.reset();
+      levelData.init(stageRef.current);
+    }
+  }));
+
   return <div id="stageInner" ref={stageRef} />;
 }
 
-export default Stage;
+export default React.forwardRef(Stage);

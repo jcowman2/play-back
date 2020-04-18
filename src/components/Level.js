@@ -13,27 +13,39 @@ const LOOP_INTERVAL = 10;
 function Level(props) {
   const { data } = props;
 
+  const stageRef = React.useRef();
   const [time, setTime] = React.useState(0);
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [loop, setLoop] = React.useState();
 
+  const handlePause = () => {
+    clearInterval(loop);
+    setLoop(null);
+    setIsPlaying(false);
+  };
+
   const handlePlayPause = () => {
     if (isPlaying) {
-      clearInterval(loop);
-      setLoop(null);
-      setIsPlaying(false);
-    } else {
-      setLoop(
-        setInterval(() => setTime(t => t + LOOP_INTERVAL), LOOP_INTERVAL)
-      );
-      setIsPlaying(true);
+      return handlePause();
     }
+    setLoop(setInterval(() => setTime(t => t + LOOP_INTERVAL), LOOP_INTERVAL));
+    setIsPlaying(true);
+  };
+
+  const handleRestart = () => {
+    if (isPlaying) {
+      handlePause();
+    }
+    stageRef.current.restart();
   };
 
   return (
     <>
-      <Stage levelData={data} time={time} />
-      <LevelKeyHandler onPlayPause={handlePlayPause} />
+      <Stage ref={stageRef} levelData={data} time={time} />
+      <LevelKeyHandler
+        onPlayPause={handlePlayPause}
+        onRestart={handleRestart}
+      />
     </>
   );
 }
