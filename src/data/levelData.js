@@ -1,4 +1,4 @@
-import { Engine, Render, World } from "matter-js";
+import { Engine, Render, World, Body } from "matter-js";
 import { DARK, LIGHT, MID_LIGHT } from "../constants";
 
 const DEFAULT_WIDTH = 700;
@@ -24,6 +24,9 @@ export class LevelData {
 
   /** @type number */
   activeObjectIndex;
+
+  // /** @type {{ x: number, y: number }} */
+  // activeObjectVelocity;
 
   /** @type Matter.Render */
   render;
@@ -53,7 +56,8 @@ export class LevelData {
     const bodiesMap = {};
     const allBodies = [];
     for (let bodyId in this.initBodies) {
-      const body = this.normalize(this.initBodies[bodyId]);
+      const body = this.initBodies[bodyId](this.normalize);
+      console.log(bodyId, body.isStatic);
       bodiesMap[bodyId] = body;
       allBodies.push(body);
     }
@@ -96,17 +100,15 @@ export class LevelData {
     if (newTime === this.lastRenderedTime) {
       return;
     }
-    this.lastRenderedTime = newTime;
+
     const delta = newTime - this.lastRenderedTime;
+    this.lastRenderedTime = newTime;
 
     Engine.update(this.engine, delta);
     Render.world(this.render);
   };
 
-  /**
-   * @param {(t) => Matter.Body} bodyCtor
-   */
-  normalize = bodyCtor => bodyCtor(unit => (unit / 100) * this.width);
+  normalize = unit => (unit / 100) * this.width;
 
   reset = () => {
     Render.stop(this.render);
@@ -149,5 +151,36 @@ export class LevelData {
   unmarkObject = id => {
     const body = this.bodies[id];
     body.render.fillStyle = MID_LIGHT;
+  };
+
+  /**
+   * @param {number} vx
+   * @param {number} vy
+   */
+  setObjectVelocity = (vx, vy) => {
+    console.log(this.bodies);
+    const id = this.objects[this.activeObjectIndex];
+    const body = this.bodies[id];
+    console.log(vx, vy, id, body, body.isStatic);
+
+    if (!vx && !vy) {
+      if (!body.isStatic) {
+        Body.setVelocity(body, { x: 0, y: 0 });
+        Body.setStatic(body, true);
+      }
+
+      return;
+    }
+
+    if (body.isStatic) {
+      Body.setStatic(body, false);
+    }
+
+    const vec = {
+      x: vx,
+      y: vy
+    };
+
+    Body.setVelocity(body, vec);
   };
 }

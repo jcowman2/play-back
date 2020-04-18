@@ -1,8 +1,7 @@
 import React from "react";
 import Stage from "./Stage";
 import LevelKeyHandler from "./LevelKeyHandler";
-
-const LOOP_INTERVAL = 10;
+import { useTimeControl, useMoveControl } from "./level.hooks";
 
 /**
  *
@@ -14,30 +13,13 @@ function Level(props) {
   const { data } = props;
 
   const stageRef = React.useRef();
-  const [time, setTime] = React.useState(0);
-  const [isPlaying, setIsPlaying] = React.useState(false);
-  const [loop, setLoop] = React.useState();
-
-  const handlePause = () => {
-    clearInterval(loop);
-    setLoop(null);
-    setIsPlaying(false);
-  };
-
-  const handlePlayPause = () => {
-    if (isPlaying) {
-      return handlePause();
-    }
-    setLoop(setInterval(() => setTime(t => t + LOOP_INTERVAL), LOOP_INTERVAL));
-    setIsPlaying(true);
-  };
-
-  const handleRestart = () => {
-    if (isPlaying) {
-      handlePause();
-    }
-    stageRef.current.restart();
-  };
+  const { time, handlePlayPause, handleRestart } = useTimeControl(stageRef);
+  const {
+    handleMoveKeyPress,
+    handleMoveKeyRelease,
+    objVx,
+    objVy
+  } = useMoveControl();
 
   const handleToggleSelected = () => {
     stageRef.current.nextObject();
@@ -45,11 +27,19 @@ function Level(props) {
 
   return (
     <>
-      <Stage ref={stageRef} levelData={data} time={time} />
+      <Stage
+        ref={stageRef}
+        levelData={data}
+        time={time}
+        objVx={objVx}
+        objVy={objVy}
+      />
       <LevelKeyHandler
         onPlayPause={handlePlayPause}
         onRestart={handleRestart}
         onToggleSelected={handleToggleSelected}
+        onMoveKeyPress={handleMoveKeyPress}
+        onMoveKeyRelease={handleMoveKeyRelease}
       />
     </>
   );

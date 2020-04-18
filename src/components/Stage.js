@@ -1,11 +1,13 @@
 import React from "react";
-import { LevelData } from "../data/levelData";
+import { useLevelDataTriggers } from "./stage.hooks";
 
 /**
  *
  * @param {React.PropsWithChildren<{
  *  levelData: LevelData,
- *  time: number
+ *  time: number,
+ *  objVx: number,
+ *  objVy: number
  * }>} props
  *
  * @param { React.Ref<{
@@ -14,22 +16,10 @@ import { LevelData } from "../data/levelData";
  * }>} ref
  */
 function Stage(props, ref) {
-  const { levelData, time } = props;
+  const { levelData, time, objVx, objVy } = props;
   const stageRef = React.useRef();
 
-  React.useEffect(() => {
-    if (!stageRef.current || !levelData) {
-      return;
-    }
-    levelData.init(stageRef.current);
-  }, [levelData, stageRef]);
-
-  React.useEffect(() => {
-    if (!levelData) {
-      return;
-    }
-    levelData.updateForward(time);
-  }, [levelData, time]);
+  useLevelDataTriggers(levelData, time, stageRef, objVx, objVy);
 
   React.useImperativeHandle(ref, () => ({
     restart: () => {
