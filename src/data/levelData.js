@@ -1,7 +1,6 @@
-import { Engine, Render, Bodies, World } from "matter-js";
+import { Engine, Render, World } from "matter-js";
 
 const DEFAULT_WIDTH = 600;
-const DEFAULT_HEIGHT = 600;
 
 export class LevelData {
   /** @type number */
@@ -24,16 +23,26 @@ export class LevelData {
 
   /**
    *
-   * @param {{ [id: string]: Matter.Body }} bodies
-   * @param {{ width: number, height: number }} options
+   * @param {{ [id: string]: (t) => Matter.Body }} bodies
+   * @param {{ width: number }} options
    */
   constructor(bodies, options = {}) {
     this.width = options.width || DEFAULT_WIDTH;
-    this.height = options.height || DEFAULT_HEIGHT;
 
     this.engine = Engine.create();
-    this.bodies = bodies;
-    World.add(this.engine.world, Object.values(bodies));
+
+    const bodiesMap = {};
+    const allBodies = [];
+    for (let bodyId in bodies) {
+      const body = this.normalize(bodies[bodyId]);
+      bodiesMap[bodyId] = body;
+      allBodies.push(body);
+    }
+
+    console.log(allBodies);
+
+    this.bodies = bodiesMap;
+    World.add(this.engine.world, allBodies);
   }
 
   /**
@@ -43,16 +52,13 @@ export class LevelData {
     if (this.render) {
       return;
     }
-    console.log("initting");
-
     this.render = Render.create({
       element: ref,
       engine: this.engine,
       options: {
         wireframes: false,
         width: this.width,
-        height: this.height,
-        hasBounds: true
+        height: this.width
       }
     });
     Render.world(this.render);
@@ -71,4 +77,9 @@ export class LevelData {
     Engine.update(this.engine, delta);
     Render.world(this.render);
   };
+
+  /**
+   * @param {(t) => Matter.Body} bodyCtor
+   */
+  normalize = bodyCtor => bodyCtor(unit => (unit / 100) * this.width);
 }
