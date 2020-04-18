@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   UP,
   DOWN,
@@ -19,12 +19,16 @@ export const useTimeControl = stageRef => {
     setIsPlaying(false);
   };
 
+  const handlePlay = () => {
+    setLoop(setInterval(() => setTime(t => t + LOOP_INTERVAL), LOOP_INTERVAL));
+    setIsPlaying(true);
+  };
+
   const handlePlayPause = () => {
     if (isPlaying) {
       return handlePause();
     }
-    setLoop(setInterval(() => setTime(t => t + LOOP_INTERVAL), LOOP_INTERVAL));
-    setIsPlaying(true);
+    return handlePlay();
   };
 
   const handleRestart = () => {
@@ -32,8 +36,14 @@ export const useTimeControl = stageRef => {
       handlePause();
     }
     setTime(0);
+    handlePlay();
     stageRef.current.restart();
   };
+
+  useEffect(() => {
+    console.log("hi");
+    handlePlay();
+  }, []);
 
   return { time, handlePlayPause, handleRestart };
 };

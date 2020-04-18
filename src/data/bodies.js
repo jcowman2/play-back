@@ -1,5 +1,10 @@
 import { Bodies } from "matter-js";
-import { LIGHT, MID_LIGHT } from "../constants";
+import {
+  LIGHT,
+  MID_LIGHT,
+  REGULAR_AIR_FRICTION,
+  DENSITY_FREEZE
+} from "../constants";
 
 const normalBody = func => tform => func(tform);
 
@@ -8,7 +13,8 @@ export const spirit = (x, y, radius = 20) =>
     body: Bodies.circle(t(x), t(y), t(radius), {
       restitution: 1,
       render: { fillStyle: LIGHT },
-      density: 0.00001
+      frictionAir: REGULAR_AIR_FRICTION,
+      density: DENSITY_FREEZE
     }),
     gravity: true
   }));

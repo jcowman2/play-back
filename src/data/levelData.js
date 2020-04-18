@@ -1,5 +1,13 @@
 import { Engine, Render, World, Body } from "matter-js";
-import { DARK, LIGHT, MID_LIGHT, GRAVITY_X, GRAVITY_Y } from "../constants";
+import {
+  DARK,
+  LIGHT,
+  MID_LIGHT,
+  GRAVITY_X,
+  GRAVITY_Y,
+  DENSITY_FREEZE,
+  DENSITY_UNFREEZE
+} from "../constants";
 
 const DEFAULT_WIDTH = 700;
 
@@ -34,6 +42,12 @@ export class LevelData {
   /** @type number */
   lastRenderedTime;
 
+  /** @type {{ [id: string]: Matter.Vector }}*/
+  frozenVelocities;
+
+  /** @type boolean */
+  isFrozen;
+
   /**
    *
    * @param {{ [id: string]: (t) => { body: Matter.Body, gravity: boolean }}} bodies
@@ -49,6 +63,8 @@ export class LevelData {
   }
 
   preInit = () => {
+    this.isFrozen = true;
+    this.frozenVelocities = {};
     this.lastRenderedTime = 0;
     this.activeObjectIndex = 0;
 
@@ -121,11 +137,16 @@ export class LevelData {
   updateGravity = delta => {
     for (let key of this.gravityBodies) {
       const body = this.bodies[key];
-      const force = {
-        x: body.mass * ((GRAVITY_X * delta) / 1000),
-        y: body.mass * ((GRAVITY_Y * delta) / 1000)
-      };
-      Body.applyForce(body, body.position, force);
+
+      if (this.isFrozen) {
+        Body.setVelocity(body, { x: 0, y: 0 });
+      } else {
+        const force = {
+          x: body.mass * ((GRAVITY_X * delta) / 1000),
+          y: body.mass * ((GRAVITY_Y * delta) / 1000)
+        };
+        Body.applyForce(body, body.position, force);
+      }
     }
   };
 
@@ -201,5 +222,41 @@ export class LevelData {
     };
 
     Body.setVelocity(body, vec);
+  };
+
+  freeze = () => {
+    if (this.isFrozen) {
+      return;
+    }
+
+    this.isFrozen = true;
+    const frozenVelocities = {};
+
+    for (let id of this.gravityBodies) {
+      const body = this.bodies[id];
+      frozenVelocities[id] = body.velocity;
+
+      Body.setVelocity(body, { x: 0, y: 0 });
+      Body.setDensity(body, DENSITY_FREEZE);
+    }
+
+    this.frozenVelocities = frozenVelocities;
+  };
+
+  unfreeze = () => {
+    if (!this.isFrozen) {
+      return;
+    }
+
+    this.isFrozen = false;
+    for (let id of this.gravityBodies) {
+      if (this.frozenVelocities[id]) {
+        const body = this.bodies[id];
+        Body.setVelocity(body, this.frozenVelocities[id]);
+        Body.setDensity(body, DENSITY_UNFREEZE);
+      }
+    }
+
+    this.frozenVelocities = {};
   };
 }

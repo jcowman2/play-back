@@ -12,7 +12,9 @@ import { useLevelDataTriggers } from "./stage.hooks";
  *
  * @param { React.Ref<{
  *  restart: () => void,
- *  nextObject: () => void
+ *  nextObject: () => void,
+ *  freeze: () => void,
+ *  unfreeze: () => void
  * }>} ref
  */
 function Stage(props, ref) {
@@ -29,6 +31,12 @@ function Stage(props, ref) {
     nextObject: () => {
       levelData.nextActiveObject();
       levelData.rerender();
+    },
+    freeze: () => {
+      levelData.freeze();
+    },
+    unfreeze: () => {
+      levelData.unfreeze();
     }
   }));
 

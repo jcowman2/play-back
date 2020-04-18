@@ -12,5 +12,9 @@ export const RIGHT = "right";
 export const LOOP_INTERVAL = 10;
 export const OBJ_VELOCITY = 1000; // units per second
 
+/* Spirit */
 export const GRAVITY_X = 0;
 export const GRAVITY_Y = 0.2;
+export const REGULAR_AIR_FRICTION = 0.025;
+export const DENSITY_FREEZE = 0.00001;
+export const DENSITY_UNFREEZE = 0.001;

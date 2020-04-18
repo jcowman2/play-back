@@ -21,7 +21,7 @@ const KEYUP_KEYS = ["w", "a", "s", "d", "up", "left", "down", "right"];
 /**
  *
  * @param {React.PropsWithChildren<{
- *  onPlayPause: () => void,
+ *  onFreezeUnfreeze: () => void,
  *  onRestart: () => void,
  *  onToggleSelected: () => void,
  *  onMoveKeyPress: (direction: string) => void,
@@ -30,7 +30,7 @@ const KEYUP_KEYS = ["w", "a", "s", "d", "up", "left", "down", "right"];
  */
 function LevelKeyHandler(props) {
   const {
-    onPlayPause,
+    onFreezeUnfreeze,
     onRestart,
     onToggleSelected,
     onMoveKeyPress,
@@ -44,7 +44,7 @@ function LevelKeyHandler(props) {
         onKeyEvent={key => {
           switch (key) {
             case "space":
-              return onPlayPause();
+              return onFreezeUnfreeze();
             case "r":
               return onRestart();
             case "ctrl":
