@@ -9,24 +9,29 @@ function App() {
   const [loop, setLoop] = React.useState();
 
   return (
-    <div>
-      <Stage time={time} />
-      <button
-        onClick={() => {
-          if (isPlaying) {
-            clearInterval(loop);
-            setLoop(null);
-            setIsPlaying(false);
-          } else {
-            setLoop(
-              setInterval(() => setTime(t => t + LOOP_INTERVAL), LOOP_INTERVAL)
-            );
-            setIsPlaying(true);
-          }
-        }}
-      >
-        {isPlaying ? "Pause" : "Play"}
-      </button>
+    <div style={{ display: "flex", justifyContent: "center" }}>
+      <div style={{ textAlign: "center" }}>
+        <Stage time={time} />
+        <button
+          onClick={() => {
+            if (isPlaying) {
+              clearInterval(loop);
+              setLoop(null);
+              setIsPlaying(false);
+            } else {
+              setLoop(
+                setInterval(
+                  () => setTime(t => t + LOOP_INTERVAL),
+                  LOOP_INTERVAL
+                )
+              );
+              setIsPlaying(true);
+            }
+          }}
+        >
+          {isPlaying ? "Pause" : "Play"}
+        </button>
+      </div>
     </div>
   );
 }

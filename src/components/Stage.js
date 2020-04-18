@@ -16,14 +16,23 @@ export default class Stage extends React.Component {
       element: this.refs.stage,
       engine: this.engine,
       options: {
-        wireframes: false
+        wireframes: false,
+        width: 800,
+        height: 700
       }
     });
 
-    const box = Bodies.rectangle(400, 200, 80, 80);
-    const ground = Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
+    const box = Bodies.circle(200, 200, 20, {
+      restitution: 1.5,
+      render: { fillStyle: "white" }
+    });
+    const ground = Bodies.rectangle(300, 500, 810, 60, {
+      isStatic: true,
+      angle: 0.5
+    });
 
     World.add(this.engine.world, [box, ground]);
+    Render.world(this.gameRender);
   }
 
   componentDidUpdate(prevProps) {
