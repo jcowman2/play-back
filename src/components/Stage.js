@@ -9,7 +9,8 @@ import { LevelData } from "../data/levelData";
  * }>} props
  *
  * @param { React.Ref<{
- *  restart: () => void
+ *  restart: () => void,
+ *  nextObject: () => void
  * }>} ref
  */
 function Stage(props, ref) {
@@ -34,6 +35,10 @@ function Stage(props, ref) {
     restart: () => {
       levelData.reset();
       levelData.init(stageRef.current);
+    },
+    nextObject: () => {
+      levelData.nextActiveObject();
+      levelData.rerender();
     }
   }));
 

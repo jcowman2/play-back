@@ -1,4 +1,5 @@
 import { Engine, Render, World } from "matter-js";
+import { DARK, LIGHT, MID_LIGHT } from "../constants";
 
 const DEFAULT_WIDTH = 700;
 
@@ -18,6 +19,12 @@ export class LevelData {
   /** @type {{ [id: string]: Matter.Body }} */
   bodies;
 
+  /** @type string[] */
+  objects;
+
+  /** @type number */
+  activeObjectIndex;
+
   /** @type Matter.Render */
   render;
 
@@ -27,10 +34,12 @@ export class LevelData {
   /**
    *
    * @param {{ [id: string]: (t) => Matter.Body }} bodies
+   * @param {string[]} objects
    * @param {{ width: number }} options
    */
-  constructor(bodies, options = {}) {
+  constructor(bodies, objects, options = {}) {
     this.width = options.width || DEFAULT_WIDTH;
+    this.objects = objects;
     this.initBodies = bodies;
 
     this.preInit();
@@ -39,6 +48,7 @@ export class LevelData {
   preInit = () => {
     this.engine = Engine.create();
     this.lastRenderedTime = 0;
+    this.activeObjectIndex = 0;
 
     const bodiesMap = {};
     const allBodies = [];
@@ -65,9 +75,17 @@ export class LevelData {
       options: {
         wireframes: false,
         width: this.width,
-        height: this.width
+        height: this.width,
+        background: DARK
       }
     });
+
+    this.markActiveObject(this.objects[this.activeObjectIndex]);
+
+    Render.world(this.render);
+  };
+
+  rerender = () => {
     Render.world(this.render);
   };
 
@@ -102,5 +120,34 @@ export class LevelData {
     this.render = undefined;
 
     this.preInit();
+  };
+
+  nextActiveObject = () => {
+    const lastIdx = this.activeObjectIndex;
+
+    let nextIdx = this.activeObjectIndex + 1;
+    if (nextIdx >= this.objects.length) {
+      nextIdx = 0;
+    }
+    this.activeObjectIndex = nextIdx;
+
+    this.unmarkObject(this.objects[lastIdx]);
+    this.markActiveObject(this.objects[this.activeObjectIndex]);
+  };
+
+  /**
+   * @param {string} id
+   */
+  markActiveObject = id => {
+    const body = this.bodies[id];
+    body.render.fillStyle = LIGHT;
+  };
+
+  /**
+   * @param {string} id
+   */
+  unmarkObject = id => {
+    const body = this.bodies[id];
+    body.render.fillStyle = MID_LIGHT;
   };
 }

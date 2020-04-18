@@ -39,12 +39,17 @@ function Level(props) {
     stageRef.current.restart();
   };
 
+  const handleToggleSelected = () => {
+    stageRef.current.nextObject();
+  };
+
   return (
     <>
       <Stage ref={stageRef} levelData={data} time={time} />
       <LevelKeyHandler
         onPlayPause={handlePlayPause}
         onRestart={handleRestart}
+        onToggleSelected={handleToggleSelected}
       />
     </>
   );
