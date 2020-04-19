@@ -3,7 +3,7 @@ import Level from "./components/Level";
 import { PLAYGROUND } from "./data/levels";
 
 function App() {
-  const level = React.useRef(PLAYGROUND);
+  const level = React.useRef(PLAYGROUND());
 
   return (
     <div className="App">

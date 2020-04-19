@@ -15,7 +15,7 @@ function Level(props) {
   const stageRef = React.useRef();
   const [frozen, setFrozen] = React.useState(true);
 
-  const { time, handlePlayPause, handleRestart } = useTimeControl(stageRef);
+  const { time, handlePlayPause, handleRestartTime } = useTimeControl(stageRef);
   const {
     handleMoveKeyPress,
     handleMoveKeyRelease,
@@ -43,6 +43,16 @@ function Level(props) {
     handleFreeze();
   };
 
+  const handleRestart = () => {
+    handleFreeze();
+    handleRestartTime();
+  };
+
+  const handleEnterGoal = () => {
+    console.log("YOU GOT TO THE GOAL!");
+    handleRestart();
+  };
+
   return (
     <>
       <Stage
@@ -52,13 +62,11 @@ function Level(props) {
         objVx={objVx}
         objVy={objVy}
         objVa={objVa}
+        onEnterGoal={handleEnterGoal}
       />
       <LevelKeyHandler
         onFreezeUnfreeze={handleFreezeUnfreeze}
-        onRestart={() => {
-          handleFreeze();
-          handleRestart();
-        }}
+        onRestart={handleRestart}
         onToggleSelected={handleToggleSelected}
         onMoveKeyPress={handleMoveKeyPress}
         onMoveKeyRelease={handleMoveKeyRelease}

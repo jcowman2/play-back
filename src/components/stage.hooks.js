@@ -1,27 +1,28 @@
 import React from "react";
 
-export const useLevelDataTriggers = (
-  levelData,
-  time,
-  stageRef,
-  objVx,
-  objVy,
-  objVa
-) => {
-  React.useEffect(() => {
-    if (!stageRef.current || !levelData) {
-      return;
-    }
-    levelData.init(stageRef.current);
-  }, [levelData, stageRef]);
+export const useLevelDataUpdater = (levelData, stageRef, time, onEnterGoal) => {
+  const [needsInit, setNeedsInit] = React.useState(true);
+  const [lastTime, setLastTime] = React.useState(0);
 
   React.useEffect(() => {
-    if (!levelData) {
+    if (!stageRef.current || !levelData || !needsInit) {
       return;
     }
+    setNeedsInit(false);
+    levelData.init(stageRef.current, onEnterGoal);
+  }, [levelData, stageRef, needsInit, onEnterGoal]);
+
+  React.useEffect(() => {
+    if (!levelData || lastTime === time) {
+      return;
+    }
+
+    setLastTime(time);
     levelData.updateForward(time);
-  }, [levelData, time]);
+  }, [levelData, time, lastTime]);
+};
 
+export const useBlockMovers = (levelData, objVx, objVy, objVa) => {
   React.useEffect(() => {
     if (!levelData || objVx === undefined || objVy === undefined) {
       return;

@@ -1,8 +1,16 @@
 // http://mycours.es/crc/00C90226
-export const DARK = "#03171B";
-export const MID_DARK = "#1D3742";
-export const MID_LIGHT = "#6D7F8D";
-export const LIGHT = "#D7DCE3";
+const DARK = "#03171B";
+const MID_DARK = "#1D3742";
+const MID_LIGHT = "#6D7F8D";
+const LIGHT = "#D7DCE3";
+const RED = "#AD343E";
+const GREEN = "#94FBAB";
+
+export const GAME_BG = DARK;
+export const SPIRIT_FILL = LIGHT;
+export const WALL_FILL_UNSELECTED = MID_LIGHT;
+export const WALL_FILL_SELECTED = LIGHT;
+export const GOAL_FILL = GREEN;
 
 export const UP = "up";
 export const DOWN = "down";

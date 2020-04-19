@@ -1,5 +1,5 @@
 import React from "react";
-import { useLevelDataTriggers } from "./stage.hooks";
+import { useBlockMovers, useLevelDataUpdater } from "./stage.hooks";
 
 /**
  *
@@ -8,7 +8,8 @@ import { useLevelDataTriggers } from "./stage.hooks";
  *  time: number,
  *  objVx: number,
  *  objVy: number,
- *  objVa: number
+ *  objVa: number,
+ *  onEnterGoal: () => void
  * }>} props
  *
  * @param { React.Ref<{
@@ -19,15 +20,16 @@ import { useLevelDataTriggers } from "./stage.hooks";
  * }>} ref
  */
 function Stage(props, ref) {
-  const { levelData, time, objVx, objVy, objVa } = props;
+  const { levelData, time, objVx, objVy, objVa, onEnterGoal } = props;
   const stageRef = React.useRef();
 
-  useLevelDataTriggers(levelData, time, stageRef, objVx, objVy, objVa);
+  useLevelDataUpdater(levelData, stageRef, time, onEnterGoal);
+  useBlockMovers(levelData, objVx, objVy, objVa);
 
   React.useImperativeHandle(ref, () => ({
     restart: () => {
       levelData.reset();
-      levelData.init(stageRef.current);
+      levelData.init(stageRef.current, onEnterGoal);
     },
     nextObject: () => {
       levelData.nextActiveObject();

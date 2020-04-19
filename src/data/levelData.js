@@ -1,12 +1,12 @@
-import { Engine, Render, World, Body } from "matter-js";
+import { Engine, Render, World, Body, Events } from "matter-js";
 import {
-  DARK,
-  LIGHT,
-  MID_LIGHT,
   GRAVITY_X,
   GRAVITY_Y,
   DENSITY_FREEZE,
-  DENSITY_UNFREEZE
+  DENSITY_UNFREEZE,
+  WALL_FILL_SELECTED,
+  WALL_FILL_UNSELECTED,
+  GAME_BG
 } from "../constants";
 
 const DEFAULT_WIDTH = 700;
@@ -48,16 +48,21 @@ export class LevelData {
   /** @type boolean */
   isFrozen;
 
+  /** @type {{ enterGoal: string[] }} */
+  collisions;
+
   /**
    *
    * @param {{ [id: string]: (t) => { body: Matter.Body, gravity: boolean }}} bodies
    * @param {string[]} objects
+   * @param {{ enterGoal: string[] }} collisions
    * @param {{ width: number }} options
    */
-  constructor(bodies, objects, options = {}) {
+  constructor(bodies, objects, collisions, options = {}) {
     this.width = options.width || DEFAULT_WIDTH;
     this.objects = objects;
     this.initBodies = bodies;
+    this.collisions = collisions;
 
     this.preInit();
   }
@@ -92,8 +97,9 @@ export class LevelData {
 
   /**
    * @param {React.ReactInstance} ref
+   * @param {() => void} onEnterGoal
    */
-  init = ref => {
+  init = (ref, onEnterGoal) => {
     if (this.render) {
       return;
     }
@@ -104,13 +110,31 @@ export class LevelData {
         wireframes: false,
         width: this.width,
         height: this.width,
-        background: DARK
+        background: GAME_BG
       }
     });
+
+    this.registerCollisionListener("enterGoal", onEnterGoal);
 
     this.markActiveObject(this.objects[this.activeObjectIndex]);
 
     Render.world(this.render);
+  };
+
+  /**
+   * @param {string} key
+   * @param {() => void} callback
+   */
+  registerCollisionListener = (key, callback) => {
+    const ids = this.collisions[key].map(bodyKey => this.bodies[bodyKey].id);
+
+    Events.on(this.engine, "collisionStart", event => {
+      for (let { bodyA, bodyB } of event.pairs) {
+        if (ids.includes(bodyA.id) && ids.includes(bodyB.id)) {
+          return callback();
+        }
+      }
+    });
   };
 
   rerender = () => {
@@ -184,7 +208,7 @@ export class LevelData {
    */
   markActiveObject = id => {
     const body = this.bodies[id];
-    body.render.fillStyle = LIGHT;
+    body.render.fillStyle = WALL_FILL_SELECTED;
   };
 
   /**
@@ -192,7 +216,7 @@ export class LevelData {
    */
   unmarkObject = id => {
     const body = this.bodies[id];
-    body.render.fillStyle = MID_LIGHT;
+    body.render.fillStyle = WALL_FILL_UNSELECTED;
   };
 
   /**

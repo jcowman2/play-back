@@ -32,7 +32,7 @@ export const useTimeControl = stageRef => {
     return handlePlay();
   };
 
-  const handleRestart = () => {
+  const handleRestartTime = () => {
     if (isPlaying) {
       handlePause();
     }
@@ -46,7 +46,7 @@ export const useTimeControl = stageRef => {
     handlePlay();
   }, []);
 
-  return { time, handlePlayPause, handleRestart };
+  return { time, handlePlayPause, handleRestartTime };
 };
 
 export const useMoveControl = () => {
