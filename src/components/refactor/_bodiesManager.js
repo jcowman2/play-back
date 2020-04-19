@@ -92,15 +92,31 @@ export default class BodiesManager {
   normalize = unit => (unit / 100) * LEVEL_WIDTH;
 
   update = () => {
+    this.updatePushes();
     this.updateGravityBodies();
     this.updateSelectables();
+  };
+
+  updatePushes = () => {
+    const activeId = this.level.objectSelectOrder[this.activeObjectIndex];
+    const { pushes } = this.metaMap[activeId];
+    const objIsStatic = !pushes && this.level.frozen;
+
+    this.byTrait[GRAVITY].forEach(id => {
+      const body = this.bodyMap[id];
+      if (body.isStatic !== objIsStatic) {
+        Body.setStatic(this.bodyMap[id], objIsStatic);
+      }
+    });
   };
 
   updateGravityBodies = () => {
     const clearVec = { x: 0, y: 0 };
 
     const bodyOperation = this.level.frozen
-      ? body => Body.setVelocity(body, clearVec)
+      ? body => {
+          Body.setVelocity(body, clearVec);
+        }
       : body => {
           const force = {
             x: body.mass * ((GRAVITY_X * LOOP_INTERVAL) / 1000),
@@ -120,18 +136,18 @@ export default class BodiesManager {
     this.byTrait[SELECTABLE].forEach(id => {
       const body = this.bodyMap[id];
       const { color, selectColor, live } = this.metaMap[id];
-      const isSelected = id === activeId;
 
       const mvmt = this.selectMovement;
       if (!mvmt.isMoving() && !body.isStatic) {
         Body.setStatic(body, true);
       }
 
+      const isSelected = id === activeId;
+      const isActive = !!live !== this.level.frozen;
+
       let setColor = color;
-      if (isSelected) {
-        if (!!live !== this.level.frozen) {
-          setColor = selectColor;
-        }
+      if (isSelected && isActive) {
+        setColor = selectColor;
         if (mvmt.isMoving()) {
           Body.setStatic(body, false);
           Body.setVelocity(body, mvmt.getVelocity());
@@ -151,8 +167,6 @@ export default class BodiesManager {
       const { x, y } = body.velocity;
 
       frozenVelocities[id] = { x, y };
-
-      // TODO - set static sometimes
     });
 
     this.frozenVelocities = frozenVelocities;
@@ -165,7 +179,6 @@ export default class BodiesManager {
         const { x, y } = frozeV;
         Body.setVelocity(this.bodyMap[id], { x, y });
       }
-      // TODO - disable static sometimes
     });
   };
 
