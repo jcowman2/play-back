@@ -8,9 +8,9 @@ import {
   OBJ_VELOCITY_ANGULAR,
   SPIRIT,
   GOAL
-} from "../../constants";
-import SelectableMovement from "./_selectableMovement";
-import BodyHistory from "../../data/bodyHistory";
+} from "../constants";
+import SelectableMovement from "./selectableMovement";
+import BodyHistory from "./bodyHistory";
 
 // All meta props:
 // - gravity
@@ -19,7 +19,6 @@ import BodyHistory from "../../data/bodyHistory";
 // - color
 // - selectable
 // - selectColor
-// - interrupts
 // - pushes
 // - fixedRotation
 

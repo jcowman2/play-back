@@ -1,4 +1,4 @@
-import { UP, DOWN, LEFT, RIGHT, CW, CCW } from "../../constants";
+import { UP, DOWN, LEFT, RIGHT, CW, CCW } from "../constants";
 
 export default class SelectableMovement {
   speed;

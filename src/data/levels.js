@@ -1,12 +1,6 @@
-import { LevelData } from "./levelData";
 import { spirit, freezeWall, goal, staticWall, pusherWall } from "./bodies";
-import { SPIRIT, GROUND, GOAL, PUSHER } from "../constants";
-import LevelApi from "../components/refactor/_levelApi";
-
-const DEFAULT_COLLIDER = {
-  enterGoal: [SPIRIT, GOAL],
-  interruptReverse: [[SPIRIT]]
-};
+import { GROUND, PUSHER } from "../constants";
+import LevelApi from "./levelApi";
 
 export const PLAYGROUND = () =>
   new LevelApi(

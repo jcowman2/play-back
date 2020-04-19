@@ -1,6 +1,6 @@
 import React from "react";
 import KeyboardEventHandler from "react-keyboard-event-handler";
-import { UP, DOWN, LEFT, RIGHT } from "../constants";
+import { UP, DOWN, LEFT, RIGHT, CCW, CW, GAME_EVENT } from "../constants";
 
 const KEYDOWN_KEYS = [
   "space",
@@ -36,29 +36,13 @@ const KEYUP_KEYS = [
 /**
  *
  * @param {React.PropsWithChildren<{
- *  onFreezeUnfreeze: () => void,
- *  onRestart: () => void,
- *  onToggleSelected: () => void,
- *  onMoveKeyPress: (direction: string) => void,
- *  onMoveKeyRelease: (direction: string) => void,
- *  onRotateKeyPress: (clockwise: boolean) => void,
- *  onRotateKeyRelease: (clockwise: boolean) => void
- *  onReverseKeyPress: () => void,
- *  onReverseKeyRelease: () => void
+ *  onGameEvent
  * }>} props
  */
 function LevelKeyHandler(props) {
-  const {
-    onFreezeUnfreeze,
-    onRestart,
-    onToggleSelected,
-    onMoveKeyPress,
-    onMoveKeyRelease,
-    onRotateKeyPress,
-    onRotateKeyRelease,
-    onReverseKeyPress,
-    onReverseKeyRelease
-  } = props;
+  const { onGameEvent } = props;
+
+  const gameEvent = (type, data) => onGameEvent({ type, data });
 
   return (
     <>
@@ -67,29 +51,29 @@ function LevelKeyHandler(props) {
         onKeyEvent={key => {
           switch (key) {
             case "space":
-              return onFreezeUnfreeze();
+              return gameEvent(GAME_EVENT.FREEZE);
             case "r":
-              return onRestart();
+              return gameEvent(GAME_EVENT.RESTART);
             case "ctrl":
-              return onToggleSelected();
+              return gameEvent(GAME_EVENT.SELECT);
             case "w":
             case "up":
-              return onMoveKeyPress(UP);
+              return gameEvent(GAME_EVENT.MOVE, UP);
             case "s":
             case "down":
-              return onMoveKeyPress(DOWN);
+              return gameEvent(GAME_EVENT.MOVE, DOWN);
             case "a":
             case "left":
-              return onMoveKeyPress(LEFT);
+              return gameEvent(GAME_EVENT.MOVE, LEFT);
             case "d":
             case "right":
-              return onMoveKeyPress(RIGHT);
+              return gameEvent(GAME_EVENT.MOVE, RIGHT);
             case "q":
-              return onRotateKeyPress(false);
+              return gameEvent(GAME_EVENT.ROTATE, CCW);
             case "e":
-              return onRotateKeyPress(true);
+              return gameEvent(GAME_EVENT.ROTATE, CW);
             case "shift":
-              return onReverseKeyPress();
+              return gameEvent(GAME_EVENT.REVERSE);
             default:
               return;
           }
@@ -102,22 +86,22 @@ function LevelKeyHandler(props) {
           switch (key) {
             case "w":
             case "up":
-              return onMoveKeyRelease(UP);
+              return gameEvent(GAME_EVENT.MOVE_END, UP);
             case "s":
             case "down":
-              return onMoveKeyRelease(DOWN);
+              return gameEvent(GAME_EVENT.MOVE_END, DOWN);
             case "a":
             case "left":
-              return onMoveKeyRelease(LEFT);
+              return gameEvent(GAME_EVENT.MOVE_END, LEFT);
             case "d":
             case "right":
-              return onMoveKeyRelease(RIGHT);
+              return gameEvent(GAME_EVENT.MOVE_END, RIGHT);
             case "q":
-              return onRotateKeyRelease(false);
+              return gameEvent(GAME_EVENT.ROTATE_END, CCW);
             case "e":
-              return onRotateKeyRelease(true);
+              return gameEvent(GAME_EVENT.ROTATE_END, CW);
             case "shift":
-              return onReverseKeyRelease();
+              return gameEvent(GAME_EVENT.FORWARD);
             default:
               return;
           }

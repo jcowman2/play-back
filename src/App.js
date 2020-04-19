@@ -1,13 +1,10 @@
 import React from "react";
-import Level from "./components/refactor/_Level";
-// import Level from "./components/Level";
-import Debug from "./components/Debug";
+import Level from "./components/Level";
 import { PLAYGROUND, LANDER, LANDERER, PUSH } from "./data/levels";
 
 const PLAYABLE_LEVELS = [LANDER, LANDERER, PUSH];
 
 function App() {
-  // const level = React.useRef(LANDERER());
   const [levelIdx, setLevelIdx] = React.useState(0);
   const [level, setLevel] = React.useState(PLAYABLE_LEVELS[levelIdx]());
 
@@ -27,7 +24,6 @@ function App() {
         }}
         onEnterGoal={handleEnterGoal}
       />
-      {/* <Debug data={level.current} /> */}
     </div>
   );
 }

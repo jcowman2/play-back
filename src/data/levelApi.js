@@ -1,6 +1,6 @@
-import BodiesManager from "./_bodiesManager";
-import LoopManager from "./_loopManager";
-import { GAME_EVENT } from "../../constants";
+import BodiesManager from "./bodiesManager";
+import LoopManager from "./loopManager";
+import { GAME_EVENT } from "../constants";
 
 export default class LevelApi {
   /** @type {{ [id: string]: (t) => { body: Matter.Body, meta } }} */
