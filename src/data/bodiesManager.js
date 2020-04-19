@@ -18,6 +18,7 @@ const GRAVITY = "gravity";
 const SELECTABLE = "selectable";
 const REVERSABLE = "reversable";
 const FIXED_ROTATION = "fixedRotation";
+const FIXED_POSITION = "fixedPosition";
 const BOUNDED = "bounded";
 
 export const TRAITS = [
@@ -25,7 +26,8 @@ export const TRAITS = [
   SELECTABLE,
   REVERSABLE,
   FIXED_ROTATION,
-  BOUNDED
+  BOUNDED,
+  FIXED_POSITION
 ];
 
 export default class BodiesManager {
@@ -56,6 +58,9 @@ export default class BodiesManager {
   /** @type {{ [key: string]: BodyHistory }} */
   histories;
 
+  /** @type {{ [key: string]: Matter.Vector }} */
+  fixedPositions;
+
   constructor(level, bodiesInitializer) {
     this.level = level;
 
@@ -63,6 +68,7 @@ export default class BodiesManager {
     const bodyMap = {};
     const metaMap = {};
     const histories = {};
+    const fixedPositions = {};
 
     const byTrait = {};
     TRAITS.forEach(trait => (byTrait[trait] = []));
@@ -83,6 +89,11 @@ export default class BodiesManager {
       if (meta[REVERSABLE]) {
         histories[bodyId] = new BodyHistory(body);
       }
+
+      if (meta[FIXED_POSITION]) {
+        const { x, y } = body.position;
+        fixedPositions[bodyId] = { x, y };
+      }
     }
 
     this.all = allBodies;
@@ -90,6 +101,7 @@ export default class BodiesManager {
     this.metaMap = metaMap;
     this.byTrait = byTrait;
     this.histories = histories;
+    this.fixedPositions = fixedPositions;
   }
 
   start = () => {
@@ -131,6 +143,7 @@ export default class BodiesManager {
     this.updateReversables();
     this.updateFixedRotations();
     this.updateBoundeds();
+    this.updateFixedPositions();
 
     this.checkSpiritOutOfBounds();
   };
@@ -173,7 +186,13 @@ export default class BodiesManager {
 
     this.byTrait[SELECTABLE].forEach(id => {
       const body = this.bodyMap[id];
-      const { color, selectColor, live, fixedRotation } = this.metaMap[id];
+      const {
+        color,
+        selectColor,
+        live,
+        fixedRotation,
+        fixedPosition
+      } = this.metaMap[id];
 
       const mvmt = this.selectMovement;
       if (!mvmt.isMoving() && !body.isStatic) {
@@ -188,7 +207,10 @@ export default class BodiesManager {
         setColor = selectColor;
         if (mvmt.isMoving()) {
           Body.setStatic(body, false);
-          Body.setVelocity(body, mvmt.getVelocity());
+
+          if (!fixedPosition) {
+            Body.setVelocity(body, mvmt.getVelocity());
+          }
 
           if (!fixedRotation) {
             Body.setAngularVelocity(body, mvmt.getAngularVelocity());
@@ -228,6 +250,13 @@ export default class BodiesManager {
     });
   };
 
+  updateFixedPositions = () => {
+    this.byTrait[FIXED_POSITION].forEach(id => {
+      const { x, y } = this.fixedPositions[id];
+      Body.setPosition(this.bodyMap[id], { x, y });
+    });
+  };
+
   checkSpiritOutOfBounds = () => {
     const { x, y } = this.bodyMap[SPIRIT].position;
     const min = -this.normalize(OUTBOUND_GUTTER);
@@ -247,16 +276,16 @@ export default class BodiesManager {
       const { bounded } = this.metaMap[id];
       const boundBody = this.bodyMap[bounded];
 
-      const [bodyUL, , bodyLR] = body.vertices;
+      const [bodyUL, bodyUR, bodyLR, bodyLL] = body.vertices;
       const [boundUL, , boundLR] = boundBody.vertices;
 
       let xCorrection = 0;
       let yCorrection = 0;
 
-      const bodyTop = bodyUL.y;
-      const bodyLeft = bodyUL.x;
-      const bodyBottom = bodyLR.y;
-      const bodyRight = bodyLR.x;
+      const bodyTop = Math.min(bodyUL.y, bodyUR.y);
+      const bodyLeft = Math.min(bodyUL.x, bodyLL.x);
+      const bodyBottom = Math.max(bodyLR.y, bodyLL.y);
+      const bodyRight = Math.max(bodyLR.x, bodyUR.x);
 
       const boundTop = boundUL.y + gutter;
       const boundLeft = boundUL.x + gutter;

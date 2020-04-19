@@ -24,22 +24,6 @@ import {
 
 const normalBody = func => tform => func(tform);
 
-const COLLISION_CATEGORY = {
-  spirit: 0x1,
-  goal: 0x10,
-  wall: 0x100,
-  pusher: 0x1000,
-  bound: 0x10000
-};
-
-const COLLISION_MASK = {
-  spirit: 0x1111,
-  goal: 0x11,
-  wall: 0x1101,
-  pusher: 0x11101,
-  bound: 0x11000
-};
-
 export const spirit = (x, y, radius = 10) =>
   normalBody(t => ({
     body: Bodies.circle(t(x), t(y), t(radius), {
@@ -48,10 +32,6 @@ export const spirit = (x, y, radius = 10) =>
       friction: 0,
       frictionAir: REGULAR_AIR_FRICTION,
       density: DENSITY_FREEZE
-      // collisionFilter: {
-      //   category: COLLISION_CATEGORY.spirit,
-      //   mask: COLLISION_MASK.spirit
-      // }
     }),
     meta: {
       gravity: true,
@@ -65,10 +45,6 @@ export const goal = (x, y, width) =>
       isStatic: true,
       isSensor: true,
       render: { fillStyle: GOAL_FILL }
-      // collisionFilter: {
-      //   category: COLLISION_CATEGORY.goal,
-      //   mask: COLLISION_MASK.goal
-      // }
     }),
     meta: {}
   }));
@@ -79,9 +55,9 @@ const wallBase = ({
   selectColor,
   selectable,
   pushes,
-  fixedRotation
-  // collisionFilter
-}) => (x, y, width, height, angle = 0, bounded = undefined) =>
+  fixedRotation,
+  fixedPosition
+}) => (x, y, width, height, angle = 0, bounded) =>
   normalBody(t => ({
     body: Bodies.rectangle(t(x), t(y), t(width), t(height), {
       isStatic: true,
@@ -89,8 +65,6 @@ const wallBase = ({
       render: { fillStyle: color },
       friction: 0,
       frictionAir: 0
-      // collisionFilter
-      // chamfer: {}
     }),
     meta: {
       live,
@@ -99,7 +73,8 @@ const wallBase = ({
       selectable,
       pushes,
       fixedRotation,
-      bounded
+      bounded,
+      fixedPosition
     }
   }));
 
@@ -107,10 +82,13 @@ export const freezeWall = wallBase({
   color: WALL_FILL_UNSELECTED,
   selectColor: WALL_FILL_SELECTED,
   selectable: true
-  // collisionFilter: {
-  //   category: COLLISION_CATEGORY.wall,
-  //   mask: COLLISION_MASK.wall
-  // }
+});
+
+export const fixedFreezeWall = wallBase({
+  color: WALL_FILL_UNSELECTED,
+  selectColor: WALL_FILL_SELECTED,
+  selectable: true,
+  fixedPosition: true
 });
 
 export const pusherWall = wallBase({
@@ -119,18 +97,10 @@ export const pusherWall = wallBase({
   selectable: true,
   fixedRotation: true,
   pushes: true
-  // collisionFilter: {
-  //   category: COLLISION_CATEGORY.pusher,
-  //   mask: COLLISION_MASK.pusher
-  // }
 });
 
 export const staticWall = wallBase({
   color: STATIC_WALL_FILL
-  // collisionFilter: {
-  //   category: COLLISION_CATEGORY.wall,
-  //   mask: COLLISION_MASK.wall
-  // }
 });
 
 export const bound = (x, y, width, height, color) =>
@@ -138,10 +108,6 @@ export const bound = (x, y, width, height, color) =>
     body: Bodies.rectangle(t(x), t(y), t(width), t(height), {
       isSensor: true,
       render: { fillStyle: color, opacity: 0.5 }
-      // collisionFilter: {
-      //   category: COLLISION_CATEGORY.bound,
-      //   mask: COLLISION_MASK.bound
-      // }
     }),
     meta: {
       color
