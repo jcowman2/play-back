@@ -4,7 +4,8 @@ import {
   DENSITY_FREEZE,
   SPIRIT_FILL,
   WALL_FILL_UNSELECTED,
-  GOAL_FILL
+  GOAL_FILL,
+  WALL_FILL_SELECTED
 } from "../constants";
 
 const normalBody = func => tform => func(tform);
@@ -18,20 +19,10 @@ export const spirit = (x, y, radius = 10) =>
       frictionAir: REGULAR_AIR_FRICTION,
       density: DENSITY_FREEZE
     }),
-
-    gravity: true,
-    reversable: true
-  }));
-
-export const wall = (x, y, width, height, angle = 0) =>
-  normalBody(t => ({
-    body: Bodies.rectangle(t(x), t(y), t(width), t(height), {
-      isStatic: true,
-      angle,
-      render: { fillStyle: WALL_FILL_UNSELECTED },
-      friction: 0,
-      frictionAir: 0
-    })
+    meta: {
+      gravity: true,
+      reversable: true
+    }
   }));
 
 export const goal = (x, y, width) =>
@@ -40,5 +31,37 @@ export const goal = (x, y, width) =>
       isStatic: true,
       isSensor: true,
       render: { fillStyle: GOAL_FILL }
-    })
+    }),
+    meta: {}
   }));
+
+const wallBase = ({ live, color, selectColor, selectable }) => (
+  x,
+  y,
+  width,
+  height,
+  angle = 0
+) =>
+  normalBody(t => ({
+    body: Bodies.rectangle(t(x), t(y), t(width), t(height), {
+      isStatic: true,
+      angle,
+      render: { fillStyle: color },
+      friction: 0,
+      frictionAir: 0
+    }),
+    meta: {
+      live,
+      color,
+      selectColor,
+      selectable,
+      interrupts: true
+    }
+  }));
+
+export const freezeWall = wallBase({
+  live: false,
+  color: WALL_FILL_UNSELECTED,
+  selectColor: WALL_FILL_SELECTED,
+  selectable: true
+});

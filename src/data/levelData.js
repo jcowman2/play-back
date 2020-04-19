@@ -1,11 +1,5 @@
 import { Engine, Render, World, Body, Events } from "matter-js";
-import {
-  GRAVITY_X,
-  GRAVITY_Y,
-  WALL_FILL_SELECTED,
-  WALL_FILL_UNSELECTED,
-  GAME_BG
-} from "../constants";
+import { GRAVITY_X, GRAVITY_Y, GAME_BG } from "../constants";
 import BodyHistory from "./bodyHistory";
 
 const DEFAULT_WIDTH = 700;
@@ -32,9 +26,6 @@ export class LevelData {
   /** @type number */
   activeObjectIndex;
 
-  /** @type string[] */
-  gravityBodies;
-
   /** @type Matter.Render */
   render;
 
@@ -53,9 +44,6 @@ export class LevelData {
   /** @type {{ enterGoal: string[] }} */
   collisions;
 
-  /** @type string[] */
-  reversableBodies;
-
   /** @type {{ [id: string]: BodyHistory }} */
   histories;
 
@@ -64,6 +52,18 @@ export class LevelData {
 
   /** @type {(data: LevelData) => void} */
   onUpdateData;
+
+  /** @type {{ [id: string]: object }} */
+  metaMap;
+
+  /** @type string[] */
+  gravityBodies;
+
+  /** @type string[] */
+  reversableBodies;
+
+  /** @type string[] */
+  interruptsBodies;
 
   /**
    *
@@ -93,15 +93,18 @@ export class LevelData {
     this.engine.world.gravity.scale = 0;
 
     const bodiesMap = {};
+    const metaMap = {};
+
     const allBodies = [];
     const gravityBodies = [];
     const reversableBodies = [];
+    const interruptsBodies = [];
+
     const histories = {};
 
     for (let bodyId in this.initBodies) {
-      const { body, gravity, reversable } = this.initBodies[bodyId](
-        this.normalize
-      );
+      const { body, meta } = this.initBodies[bodyId](this.normalize);
+      const { gravity, reversable, interrupts } = meta;
 
       if (gravity) {
         gravityBodies.push(bodyId);
@@ -110,15 +113,24 @@ export class LevelData {
         reversableBodies.push(bodyId);
         histories[bodyId] = new BodyHistory(body);
       }
+      if (interrupts) {
+        interruptsBodies.push(bodyId);
+      }
 
       bodiesMap[bodyId] = body;
+      metaMap[bodyId] = meta;
       allBodies.push(body);
     }
 
     this.bodies = bodiesMap;
+    this.metaMap = metaMap;
     this.gravityBodies = gravityBodies;
     this.reversableBodies = reversableBodies;
+    this.interruptsBodies = interruptsBodies;
     this.histories = histories;
+
+    // Hack to allow interrupts to be generated automagically
+    this.collisions.interruptReverse[1] = interruptsBodies;
 
     World.add(this.engine.world, allBodies);
   };
@@ -288,7 +300,8 @@ export class LevelData {
    */
   markActiveObject = id => {
     const body = this.bodies[id];
-    body.render.fillStyle = WALL_FILL_SELECTED;
+    const { selectColor } = this.metaMap[id];
+    body.render.fillStyle = selectColor;
   };
 
   /**
@@ -296,7 +309,8 @@ export class LevelData {
    */
   unmarkObject = id => {
     const body = this.bodies[id];
-    body.render.fillStyle = WALL_FILL_UNSELECTED;
+    const { color } = this.metaMap[id];
+    body.render.fillStyle = color;
   };
 
   /**
