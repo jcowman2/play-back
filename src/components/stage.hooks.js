@@ -1,6 +1,12 @@
 import React from "react";
 
-export const useLevelDataUpdater = (levelData, stageRef, time, onEnterGoal) => {
+export const useLevelDataUpdater = (
+  levelData,
+  stageRef,
+  time,
+  onEnterGoal,
+  onUpdateData
+) => {
   const [needsInit, setNeedsInit] = React.useState(true);
   const [lastTime, setLastTime] = React.useState(0);
 
@@ -9,8 +15,8 @@ export const useLevelDataUpdater = (levelData, stageRef, time, onEnterGoal) => {
       return;
     }
     setNeedsInit(false);
-    levelData.init(stageRef.current, onEnterGoal);
-  }, [levelData, stageRef, needsInit, onEnterGoal]);
+    levelData.init(stageRef.current, onEnterGoal, onUpdateData);
+  }, [levelData, stageRef, needsInit, onEnterGoal, onUpdateData]);
 
   React.useEffect(() => {
     if (!levelData || lastTime === time) {

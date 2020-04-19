@@ -9,7 +9,8 @@ import { useBlockMovers, useLevelDataUpdater } from "./stage.hooks";
  *  objVx: number,
  *  objVy: number,
  *  objVa: number,
- *  onEnterGoal: () => void
+ *  onEnterGoal: () => void,
+ *  onUpdateData: (data: LevelData) => void
  * }>} props
  *
  * @param { React.Ref<{
@@ -20,16 +21,24 @@ import { useBlockMovers, useLevelDataUpdater } from "./stage.hooks";
  * }>} ref
  */
 function Stage(props, ref) {
-  const { levelData, time, objVx, objVy, objVa, onEnterGoal } = props;
+  const {
+    levelData,
+    time,
+    objVx,
+    objVy,
+    objVa,
+    onEnterGoal,
+    onUpdateData
+  } = props;
   const stageRef = React.useRef();
 
-  useLevelDataUpdater(levelData, stageRef, time, onEnterGoal);
+  useLevelDataUpdater(levelData, stageRef, time, onEnterGoal, onUpdateData);
   useBlockMovers(levelData, objVx, objVy, objVa);
 
   React.useImperativeHandle(ref, () => ({
     restart: () => {
       levelData.reset();
-      levelData.init(stageRef.current, onEnterGoal);
+      levelData.init(stageRef.current, onEnterGoal, onUpdateData);
     },
     nextObject: () => {
       levelData.nextActiveObject();

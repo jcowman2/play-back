@@ -7,10 +7,11 @@ import { useTimeControl, useMoveControl } from "./level.hooks";
  *
  * @param {React.PropsWithChildren<{
  *  data: LevelData,
+ *  onUpdateData: (data: LevelData) => void
  * }>} props
  */
 function Level(props) {
-  const { data } = props;
+  const { data, onUpdateData } = props;
 
   const stageRef = React.useRef();
   const [frozen, setFrozen] = React.useState(true);
@@ -71,6 +72,7 @@ function Level(props) {
         objVy={objVy}
         objVa={objVa}
         onEnterGoal={handleEnterGoal}
+        onUpdateData={onUpdateData}
       />
       <LevelKeyHandler
         onFreezeUnfreeze={handleFreezeUnfreeze}

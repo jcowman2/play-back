@@ -2,8 +2,6 @@ import { Engine, Render, World, Body, Events } from "matter-js";
 import {
   GRAVITY_X,
   GRAVITY_Y,
-  DENSITY_FREEZE,
-  DENSITY_UNFREEZE,
   WALL_FILL_SELECTED,
   WALL_FILL_UNSELECTED,
   GAME_BG
@@ -64,6 +62,9 @@ export class LevelData {
   /** @type boolean */
   isReverse;
 
+  /** @type {(data: LevelData) => void} */
+  onUpdateData;
+
   /**
    *
    * @param {{ [id: string]: (t) => { body: Matter.Body, gravity: boolean }}} bodies
@@ -82,6 +83,7 @@ export class LevelData {
 
   preInit = () => {
     this.isFrozen = false;
+    this.isReverse = false;
     this.frozenVelocities = {};
     this.lastRenderedTime = 0;
     this.playTime = 0;
@@ -124,8 +126,9 @@ export class LevelData {
   /**
    * @param {React.ReactInstance} ref
    * @param {() => void} onEnterGoal
+   * @param {(data: LevelData) => void} onUpdateData
    */
-  init = (ref, onEnterGoal) => {
+  init = (ref, onEnterGoal, onUpdateData) => {
     if (this.render) {
       return;
     }
@@ -139,8 +142,10 @@ export class LevelData {
         background: GAME_BG
       }
     });
+    this.onUpdateData = onUpdateData;
 
     this.registerCollisionListener("enterGoal", onEnterGoal);
+    this.registerCollisionListener("interruptReverse", this.interruptReverse);
 
     this.markActiveObject(this.objects[this.activeObjectIndex]);
 
@@ -148,16 +153,32 @@ export class LevelData {
     this.freeze();
   };
 
+  mapBodyKeyToId = bodyKey => this.bodies[bodyKey].id;
+
   /**
    * @param {string} key
    * @param {() => void} callback
    */
   registerCollisionListener = (key, callback) => {
-    const ids = this.collisions[key].map(bodyKey => this.bodies[bodyKey].id);
+    const collisions = this.collisions[key];
+
+    let groupA;
+    let groupB;
+
+    if (Array.isArray(collisions[0])) {
+      groupA = collisions[0].map(this.mapBodyKeyToId);
+      groupB = collisions[1].map(this.mapBodyKeyToId);
+    } else {
+      groupA = collisions.map(this.mapBodyKeyToId);
+      groupB = groupA;
+    }
 
     Events.on(this.engine, "collisionStart", event => {
       for (let { bodyA, bodyB } of event.pairs) {
-        if (ids.includes(bodyA.id) && ids.includes(bodyB.id)) {
+        if (
+          (groupA.includes(bodyA.id) && groupB.includes(bodyB.id)) ||
+          (groupA.includes(bodyB.id) && groupB.includes(bodyA.id))
+        ) {
           return callback();
         }
       }
@@ -188,6 +209,8 @@ export class LevelData {
 
     Engine.update(this.engine, delta);
     Render.world(this.render);
+
+    this.onUpdateData(this);
   };
 
   updateGravity = delta => {
@@ -336,7 +359,9 @@ export class LevelData {
 
     for (let id of this.gravityBodies) {
       const body = this.bodies[id];
-      frozenVelocities[id] = body.velocity;
+      const { x, y } = body.velocity;
+
+      frozenVelocities[id] = { x, y };
 
       Body.setVelocity(body, { x: 0, y: 0 });
       Body.setStatic(body, true);
@@ -352,9 +377,10 @@ export class LevelData {
 
     this.isFrozen = false;
     for (let id of this.gravityBodies) {
+      const body = this.bodies[id];
+      Body.setStatic(body, false);
+
       if (this.frozenVelocities[id]) {
-        const body = this.bodies[id];
-        Body.setStatic(body, false);
         Body.setVelocity(body, this.frozenVelocities[id]);
       }
     }
@@ -370,8 +396,25 @@ export class LevelData {
       return;
     }
     this.isReverse = isReverse;
+
     if (isReverse) {
       this.freeze();
     }
+
+    for (let id of this.reversableBodies) {
+      const body = this.bodies[id];
+      Body.setStatic(body, !isReverse);
+      this.bodies[id].isSensor = isReverse;
+    }
+  };
+
+  interruptReverse = () => {
+    console.log("IR enter");
+    if (!this.isReverse) {
+      return;
+    }
+    console.log("IR pass");
+
+    this.setReverse(false);
   };
 }
