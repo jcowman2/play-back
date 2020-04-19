@@ -46,9 +46,9 @@ export const LANDERER = () =>
 export const PUSH = () =>
   new LevelData(
     {
-      spirit: spirit(10, 10, 2),
-      ground: staticWall(20, 30, 30, 2, 0.5),
-      pusher: pusherWall(20, 80, 8, 8),
+      spirit: spirit(20, 10, 2),
+      pusher: pusherWall(10, 30, 8, 8),
+      ground: staticWall(20, 30, 30, 30, 0.5),
       goal: goal(90, 90, 4)
     },
     [PUSHER],

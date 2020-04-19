@@ -16,7 +16,7 @@ function Debug(props) {
           bodies,
           frozenVelocities
         } = data;
-        const { isStatic, velocity } = bodies.spirit;
+        const { isStatic, velocity, isSensor } = bodies.spirit;
         const { x, y } = velocity;
 
         const { x: fx, y: fy } = frozenVelocities.spirit || {};
@@ -30,7 +30,7 @@ function Debug(props) {
             <p>
               Static: {String(isStatic)}, Velocity: ({x.toFixed(3)},{" "}
               {y.toFixed(3)}), Frozen Velocity: ({fx && fx.toFixed(3)},{" "}
-              {fy && fy.toFixed(3)})
+              {fy && fy.toFixed(3)}), Sensor: {String(isSensor)}
             </p>
           </>
         );

@@ -1,5 +1,6 @@
 import { Engine, Render, World, Body, Events } from "matter-js";
-import { GRAVITY_X, GRAVITY_Y, GAME_BG } from "../constants";
+import moment from "moment";
+import { GRAVITY_X, GRAVITY_Y, GAME_BG, MAX_SPEED } from "../constants";
 import BodyHistory from "./bodyHistory";
 
 const DEFAULT_WIDTH = 700;
@@ -187,6 +188,13 @@ export class LevelData {
     for (let id of this.fixedRotationBodies) {
       Body.setAngle(this.bodies[id], 0);
     }
+    this.gravityBodies.forEach(id => {
+      const body = this.bodies[id];
+      Body.setVelocity(body, {
+        x: Math.min(body.velocity.x, MAX_SPEED),
+        y: Math.min(body.velocity.y, MAX_SPEED)
+      });
+    });
 
     Render.world(this.render);
 
@@ -227,6 +235,7 @@ export class LevelData {
 
     if (this.playTime <= 0) {
       this.playTime = 0;
+      return this.setReverse(false);
     }
 
     for (let id in this.histories) {
@@ -410,6 +419,7 @@ export class LevelData {
     this.frozenVelocities = {};
 
     const activeId = this.objects[this.activeObjectIndex];
+    // Body.setVelocity(this.bodies[activeId], { x: 0, y: 0 });
     const { live } = this.metaMap[activeId];
     if (!live) {
       this.unmarkObject(activeId);
@@ -423,16 +433,24 @@ export class LevelData {
     if (isReverse === this.isReverse) {
       return;
     }
+
     this.isReverse = isReverse;
 
     if (isReverse) {
       this.freeze();
-    }
 
-    for (let id of this.reversableBodies) {
-      const body = this.bodies[id];
-      Body.setStatic(body, !isReverse);
-      this.bodies[id].isSensor = isReverse;
+      this.reversableBodies.forEach(id => {
+        Body.setStatic(this.bodies[id], false);
+        this.bodies[id].isSensor = true;
+      });
+    } else {
+      this.reversableBodies.forEach(id => {
+        if (!this.isPushableSelected()) {
+          console.log("pushable not selected");
+          Body.setStatic(this.bodies[id], true);
+        }
+        this.bodies[id].isSensor = false;
+      });
     }
   };
 
@@ -441,7 +459,7 @@ export class LevelData {
       return;
     }
 
-    this.setReverse(false);
+    // this.setReverse(false);
   };
 
   iterateBodies = () => {
@@ -500,8 +518,9 @@ export class LevelData {
 
   isPushableSelected = () => {
     const id = this.objects[this.activeObjectIndex];
-    const { meta } = this.metaMap[id];
-    return !!meta;
+    const { pushes } = this.metaMap[id];
+    console.log(id, pushes, this.metaMap);
+    return !!pushes;
   };
 
   switchToPushableObject = () => {

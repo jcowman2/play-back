@@ -4,7 +4,7 @@ import Debug from "./components/Debug";
 import { PLAYGROUND, LANDER, LANDERER, PUSH } from "./data/levels";
 
 function App() {
-  const level = React.useRef(PLAYGROUND());
+  const level = React.useRef(PUSH());
   const [, forceUpdate] = React.useState(0);
   return (
     <div className="App">

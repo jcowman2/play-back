@@ -14,7 +14,6 @@ function Level(props) {
   const { data, onUpdateData } = props;
 
   const stageRef = React.useRef();
-  const [frozen, setFrozen] = React.useState(true);
 
   const { time, handlePlayPause, handleRestartTime } = useTimeControl(stageRef);
   const {
@@ -33,15 +32,15 @@ function Level(props) {
 
   const handleFreeze = () => {
     stageRef.current.freeze();
-    setFrozen(true);
   };
 
   const handleFreezeUnfreeze = () => {
-    if (frozen) {
-      stageRef.current.unfreeze();
-      return setFrozen(false);
+    if (data.isFrozen) {
+      // Hack to account for an odd race condition
+      setTimeout(() => stageRef.current.unfreeze(), 1000);
+    } else {
+      handleFreeze();
     }
-    handleFreeze();
   };
 
   const handleRestart = () => {
