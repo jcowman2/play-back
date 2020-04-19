@@ -3,8 +3,11 @@ import {
   LEVEL_WIDTH,
   LOOP_INTERVAL,
   GRAVITY_X,
-  GRAVITY_Y
+  GRAVITY_Y,
+  OBJ_VELOCITY,
+  OBJ_VELOCITY_ANGULAR
 } from "../../constants";
+import SelectableMovement from "./_selectableMovement";
 
 // All meta props:
 // - gravity
@@ -44,6 +47,9 @@ export default class BodiesManager {
   /** @type {{ [key: string]: string[] }} */
   byTrait;
 
+  /** @type SelectMovement */
+  selectMovement;
+
   constructor(level, bodiesInitializer) {
     this.level = level;
 
@@ -77,6 +83,10 @@ export default class BodiesManager {
   start = () => {
     this.frozenVelocities = {};
     this.activeObjectIndex = 0;
+    this.selectMovement = new SelectableMovement(
+      this.normalize(OBJ_VELOCITY),
+      OBJ_VELOCITY_ANGULAR
+    );
   };
 
   normalize = unit => (unit / 100) * LEVEL_WIDTH;
@@ -110,10 +120,23 @@ export default class BodiesManager {
     this.byTrait[SELECTABLE].forEach(id => {
       const body = this.bodyMap[id];
       const { color, selectColor, live } = this.metaMap[id];
+      const isSelected = id === activeId;
+
+      const mvmt = this.selectMovement;
+      if (!mvmt.isMoving() && !body.isStatic) {
+        Body.setStatic(body, true);
+      }
 
       let setColor = color;
-      if (id === activeId && !!live !== this.level.frozen) {
-        setColor = selectColor;
+      if (isSelected) {
+        if (!!live !== this.level.frozen) {
+          setColor = selectColor;
+        }
+        if (mvmt.isMoving()) {
+          Body.setStatic(body, false);
+          Body.setVelocity(body, mvmt.getVelocity());
+          Body.setAngularVelocity(body, mvmt.getAngularVelocity());
+        }
       }
 
       body.render.fillStyle = setColor;
@@ -152,5 +175,13 @@ export default class BodiesManager {
       newIdx = 0;
     }
     this.activeObjectIndex = newIdx;
+  };
+
+  moveSelected = dir => {
+    this.selectMovement.startMove(dir);
+  };
+
+  stopMovingSelected = dir => {
+    this.selectMovement.stopMove(dir);
   };
 }

@@ -1,4 +1,3 @@
-import Events from "matter-js";
 import BodiesManager from "./_bodiesManager";
 import LoopManager from "./_loopManager";
 import { GAME_EVENT } from "../../constants";
@@ -91,6 +90,12 @@ export default class LevelApi {
         return this.restart();
       case GAME_EVENT.SELECT:
         return this.bodies.selectNext();
+      case GAME_EVENT.MOVE:
+      case GAME_EVENT.ROTATE:
+        return this.bodies.moveSelected(data);
+      case GAME_EVENT.MOVE_END:
+      case GAME_EVENT.ROTATE_END:
+        return this.bodies.stopMovingSelected(data);
       default:
         console.log("not handled", type);
     }
