@@ -8,27 +8,25 @@ import {
   OBJ_VELOCITY_ANGULAR,
   SPIRIT,
   GOAL,
+  OUTBOUND_GUTTER,
   BOUND_GUTTER
 } from "../constants";
 import SelectableMovement from "./selectableMovement";
 import BodyHistory from "./bodyHistory";
 
-// All meta props:
-// - gravity
-// - reversable
-// - live
-// - color
-// - selectable
-// - selectColor
-// - pushes
-// - fixedRotation
-
 const GRAVITY = "gravity";
 const SELECTABLE = "selectable";
 const REVERSABLE = "reversable";
 const FIXED_ROTATION = "fixedRotation";
+const BOUNDED = "bounded";
 
-export const TRAITS = [GRAVITY, SELECTABLE, REVERSABLE, FIXED_ROTATION];
+export const TRAITS = [
+  GRAVITY,
+  SELECTABLE,
+  REVERSABLE,
+  FIXED_ROTATION,
+  BOUNDED
+];
 
 export default class BodiesManager {
   /** @type LevelApi */
@@ -132,6 +130,7 @@ export default class BodiesManager {
     this.updateHistories();
     this.updateReversables();
     this.updateFixedRotations();
+    this.updateBoundeds();
 
     this.checkSpiritOutOfBounds();
   };
@@ -231,13 +230,56 @@ export default class BodiesManager {
 
   checkSpiritOutOfBounds = () => {
     const { x, y } = this.bodyMap[SPIRIT].position;
-    const min = -this.normalize(BOUND_GUTTER);
-    const max = LEVEL_WIDTH + this.normalize(BOUND_GUTTER);
+    const min = -this.normalize(OUTBOUND_GUTTER);
+    const max = LEVEL_WIDTH + this.normalize(OUTBOUND_GUTTER);
 
     const outOfBounds = x <= min || y <= min || x >= max || y >= max;
     if (outOfBounds) {
       this.level.onSpiritOutOfBounds();
     }
+  };
+
+  updateBoundeds = () => {
+    const gutter = this.normalize(BOUND_GUTTER);
+
+    this.byTrait[BOUNDED].forEach(id => {
+      const body = this.bodyMap[id];
+      const { bounded } = this.metaMap[id];
+      const boundBody = this.bodyMap[bounded];
+
+      const [bodyUL, , bodyLR] = body.vertices;
+      const [boundUL, , boundLR] = boundBody.vertices;
+
+      let xCorrection = 0;
+      let yCorrection = 0;
+
+      const bodyTop = bodyUL.y;
+      const bodyLeft = bodyUL.x;
+      const bodyBottom = bodyLR.y;
+      const bodyRight = bodyLR.x;
+
+      const boundTop = boundUL.y + gutter;
+      const boundLeft = boundUL.x + gutter;
+      const boundBottom = boundLR.y - gutter;
+      const boundRight = boundLR.x - gutter;
+
+      if (bodyTop < boundTop) {
+        yCorrection += boundTop - bodyTop;
+      }
+      if (bodyBottom > boundBottom) {
+        yCorrection -= bodyBottom - boundBottom;
+      }
+      if (bodyLeft < boundLeft) {
+        xCorrection += boundLeft - bodyLeft;
+      }
+      if (bodyRight > boundRight) {
+        xCorrection -= bodyRight - boundRight;
+      }
+
+      if (xCorrection || yCorrection) {
+        Body.translate(body, { x: xCorrection, y: yCorrection });
+      }
+    });
   };
 
   freeze = () => {

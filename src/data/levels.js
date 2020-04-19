@@ -1,5 +1,12 @@
-import { spirit, freezeWall, goal, staticWall, pusherWall } from "./bodies";
-import { GROUND, PUSHER } from "../constants";
+import {
+  spirit,
+  freezeWall,
+  goal,
+  staticWall,
+  pusherWall,
+  bound
+} from "./bodies";
+import { GROUND, PUSHER, PUSHER_FILL } from "../constants";
 import LevelApi from "./levelApi";
 
 export const PLAYGROUND = () =>
@@ -38,10 +45,11 @@ export const LANDERER = () =>
 export const PUSH = () =>
   new LevelApi(
     {
+      goal: goal(90, 90, 4),
       spirit: spirit(20, 10, 2),
-      pusher: pusherWall(10, 60, 8, 8),
-      ground: staticWall(20, 30, 30, 2, 0.5),
-      goal: goal(90, 90, 4)
+      pusherBound: bound(45, 60, 80, 10, PUSHER_FILL),
+      pusher: pusherWall(10, 60, 8, 8, 0, "pusherBound"),
+      ground: staticWall(20, 30, 30, 2, 0.5)
     },
     [PUSHER]
   );
