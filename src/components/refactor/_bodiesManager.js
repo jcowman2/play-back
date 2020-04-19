@@ -1,11 +1,13 @@
-import { Body } from "matter-js";
+import { Body, Events } from "matter-js";
 import {
   LEVEL_WIDTH,
   LOOP_INTERVAL,
   GRAVITY_X,
   GRAVITY_Y,
   OBJ_VELOCITY,
-  OBJ_VELOCITY_ANGULAR
+  OBJ_VELOCITY_ANGULAR,
+  SPIRIT,
+  GOAL
 } from "../../constants";
 import SelectableMovement from "./_selectableMovement";
 import BodyHistory from "../../data/bodyHistory";
@@ -99,6 +101,26 @@ export default class BodiesManager {
       this.normalize(OBJ_VELOCITY),
       OBJ_VELOCITY_ANGULAR
     );
+  };
+
+  attachEventListeners = () => {
+    this.registerCollisionListener(SPIRIT, GOAL, this.level.onEnterGoal);
+  };
+
+  registerCollisionListener = (key1, key2, callback) => {
+    const id1 = this.bodyMap[key1].id;
+    const id2 = this.bodyMap[key2].id;
+
+    Events.on(this.level.loop.engine, "collisionStart", event => {
+      for (let { bodyA, bodyB } of event.pairs) {
+        if (
+          (bodyA.id === id1 && bodyB.id === id2) ||
+          (bodyA.id === id2 && bodyB.id === id1)
+        ) {
+          return callback();
+        }
+      }
+    });
   };
 
   normalize = unit => (unit / 100) * LEVEL_WIDTH;

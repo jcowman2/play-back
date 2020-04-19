@@ -16,7 +16,10 @@ function Level(props) {
     if (!stageRef.current || !level || level.initialized) {
       return;
     }
-    level.init(stageRef.current);
+    level.init(stageRef.current, () => {
+      console.log("YOU MADE IT TO THE GOAL!");
+      level.restart();
+    });
     level.start();
   }, [stageRef, level]);
 

@@ -36,6 +36,9 @@ export default class LevelApi {
   /** @type boolean */
   blockingEvent;
 
+  /** @type () => void */
+  onEnterGoal;
+
   constructor(bodiesInitializer, objectSelectOrder) {
     this.bodiesInitializer = bodiesInitializer;
     this.objectSelectOrder = objectSelectOrder;
@@ -49,6 +52,7 @@ export default class LevelApi {
    */
   init = (ref, onEnterGoal, onUpdate) => {
     this.ref = ref;
+    this.onEnterGoal = onEnterGoal;
     this.initialized = true;
   };
 
@@ -58,6 +62,7 @@ export default class LevelApi {
 
     this.bodies.start();
     this.loop.start(this.ref);
+    this.bodies.attachEventListeners();
 
     this.started = true;
     this.frozen = true;
