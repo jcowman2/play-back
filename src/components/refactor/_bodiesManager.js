@@ -8,6 +8,7 @@ import {
   OBJ_VELOCITY_ANGULAR
 } from "../../constants";
 import SelectableMovement from "./_selectableMovement";
+import BodyHistory from "../../data/bodyHistory";
 
 // All meta props:
 // - gravity
@@ -22,8 +23,9 @@ import SelectableMovement from "./_selectableMovement";
 
 const GRAVITY = "gravity";
 const SELECTABLE = "selectable";
+const REVERSABLE = "reversable";
 
-export const TRAITS = [GRAVITY, SELECTABLE];
+export const TRAITS = [GRAVITY, SELECTABLE, REVERSABLE];
 
 export default class BodiesManager {
   /** @type LevelApi */
@@ -50,12 +52,16 @@ export default class BodiesManager {
   /** @type SelectMovement */
   selectMovement;
 
+  /** @type {{ [key: string]: BodyHistory }} */
+  histories;
+
   constructor(level, bodiesInitializer) {
     this.level = level;
 
     const allBodies = [];
     const bodyMap = {};
     const metaMap = {};
+    const histories = {};
 
     const byTrait = {};
     TRAITS.forEach(trait => (byTrait[trait] = []));
@@ -72,12 +78,17 @@ export default class BodiesManager {
           byTrait[trait].push(bodyId);
         }
       }
+
+      if (meta[REVERSABLE]) {
+        histories[bodyId] = new BodyHistory(body);
+      }
     }
 
     this.all = allBodies;
     this.bodyMap = bodyMap;
     this.metaMap = metaMap;
     this.byTrait = byTrait;
+    this.histories = histories;
   }
 
   start = () => {
@@ -95,6 +106,8 @@ export default class BodiesManager {
     this.updatePushes();
     this.updateGravityBodies();
     this.updateSelectables();
+    this.updateHistories();
+    this.updateReversables();
   };
 
   updatePushes = () => {
@@ -157,6 +170,28 @@ export default class BodiesManager {
 
       body.render.fillStyle = setColor;
     });
+  };
+
+  updateHistories = () => {
+    if (this.level.frozen) {
+      return;
+    }
+
+    this.byTrait[REVERSABLE].forEach(id => {
+      this.histories[id].log(this.level.getPlayTime());
+    });
+  };
+
+  updateReversables = () => {
+    if (!this.level.reversed) {
+      return;
+    }
+
+    const playTime = this.level.getPlayTime();
+
+    for (let id in this.histories) {
+      this.histories[id].revertTo(playTime);
+    }
   };
 
   freeze = () => {

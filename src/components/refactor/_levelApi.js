@@ -24,6 +24,9 @@ export default class LevelApi {
   /** @type boolean */
   frozen;
 
+  /** @type boolean */
+  reversed;
+
   /** @type {Array<{type: string, data}>} */
   events;
 
@@ -83,9 +86,7 @@ export default class LevelApi {
   executeEvent = ({ type, data }) => {
     switch (type) {
       case GAME_EVENT.FREEZE:
-        this.frozen ? this.bodies.unfreeze() : this.bodies.freeze();
-        this.frozen = !this.frozen;
-        return;
+        return this.frozen ? this.unfreeze() : this.freeze();
       case GAME_EVENT.RESTART:
         return this.restart();
       case GAME_EVENT.SELECT:
@@ -96,6 +97,10 @@ export default class LevelApi {
       case GAME_EVENT.MOVE_END:
       case GAME_EVENT.ROTATE_END:
         return this.bodies.stopMovingSelected(data);
+      case GAME_EVENT.REVERSE:
+        return this.reverse();
+      case GAME_EVENT.FORWARD:
+        return this.forward();
       default:
         console.log("not handled", type);
     }
@@ -104,5 +109,28 @@ export default class LevelApi {
   restart = () => {
     this.loop.teardown();
     this.start();
+  };
+
+  getPlayTime = () => {
+    return this.loop.playTime;
+  };
+
+  freeze = () => {
+    this.frozen = true;
+    this.bodies.freeze();
+  };
+
+  unfreeze = () => {
+    this.frozen = false;
+    this.bodies.unfreeze();
+  };
+
+  reverse = () => {
+    this.freeze();
+    this.reversed = true;
+  };
+
+  forward = () => {
+    this.reversed = false;
   };
 }

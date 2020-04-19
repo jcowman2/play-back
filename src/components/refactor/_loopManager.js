@@ -15,6 +15,9 @@ export default class LoopManager {
   globalTime;
 
   /** @type number */
+  playTime;
+
+  /** @type number */
   intervalRef;
 
   constructor(level, allBodies) {
@@ -44,10 +47,17 @@ export default class LoopManager {
 
     Render.world(this.render);
     this.intervalRef = setInterval(this.update, LOOP_INTERVAL);
+    this.playTime = 0;
   };
 
   update = () => {
     this.globalTime += LOOP_INTERVAL;
+
+    if (this.level.reversed) {
+      this.playTime = Math.max(0, this.playTime - LOOP_INTERVAL);
+    } else if (!this.level.frozen) {
+      this.playTime += LOOP_INTERVAL;
+    }
 
     if (this.level.blockingEvent) {
       return;
