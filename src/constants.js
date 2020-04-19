@@ -4,6 +4,7 @@ const MID_DARK = "#1D3742";
 const MID_LIGHT = "#6D7F8D";
 const LIGHT = "#D7DCE3";
 const RED = "#AD343E";
+const DARK_RED = "#7E262E";
 const GREEN = "#94FBAB";
 
 export const GAME_BG = DARK;
@@ -11,10 +12,14 @@ export const SPIRIT_FILL = LIGHT;
 export const WALL_FILL_UNSELECTED = MID_LIGHT;
 export const WALL_FILL_SELECTED = LIGHT;
 export const GOAL_FILL = GREEN;
+export const PUSHER_FILL = DARK_RED;
+export const PUSHER_FILL_SELECTED = RED;
+export const STATIC_WALL_FILL = MID_DARK;
 
 export const SPIRIT = "spirit";
 export const GROUND = "ground";
 export const GOAL = "goal";
+export const PUSHER = "pusher";
 
 export const UP = "up";
 export const DOWN = "down";

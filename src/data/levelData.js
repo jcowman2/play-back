@@ -65,6 +65,9 @@ export class LevelData {
   /** @type string[] */
   interruptsBodies;
 
+  /** @type string[] */
+  fixedRotationBodies;
+
   /**
    *
    * @param {{ [id: string]: (t) => { body: Matter.Body, gravity: boolean }}} bodies
@@ -180,6 +183,11 @@ export class LevelData {
     }
 
     Engine.update(this.engine, delta);
+
+    for (let id of this.fixedRotationBodies) {
+      Body.setAngle(this.bodies[id], 0);
+    }
+
     Render.world(this.render);
 
     this.onUpdateData(this);
@@ -251,8 +259,26 @@ export class LevelData {
     }
     this.activeObjectIndex = nextIdx;
 
-    this.unmarkObject(this.objects[lastIdx]);
-    this.markActiveObject(this.objects[this.activeObjectIndex]);
+    const lastKey = this.objects[lastIdx];
+    const newKey = this.objects[this.activeObjectIndex];
+
+    this.unmarkObject(lastKey);
+    this.markActiveObject(newKey);
+
+    const { pushes: lastPushes } = this.metaMap[lastKey];
+    const { pushes: newPushes } = this.metaMap[newKey];
+
+    if (lastPushes === newPushes) {
+      return;
+    }
+
+    if (lastPushes) {
+      this.switchFromPushableObject();
+    }
+
+    if (newPushes) {
+      this.switchToPushableObject();
+    }
   };
 
   /**
@@ -311,8 +337,11 @@ export class LevelData {
    */
   setObjectAngularVelocity = va => {
     const id = this.objects[this.activeObjectIndex];
-    const { live } = this.metaMap[id];
+    const { live, fixedRotation } = this.metaMap[id];
     if (!live && !this.isFrozen) {
+      return;
+    }
+    if (fixedRotation) {
       return;
     }
 
@@ -348,7 +377,10 @@ export class LevelData {
       frozenVelocities[id] = { x, y };
 
       Body.setVelocity(body, { x: 0, y: 0 });
-      Body.setStatic(body, true);
+
+      if (!this.isPushableSelected) {
+        Body.setStatic(body, true);
+      }
     }
 
     this.frozenVelocities = frozenVelocities;
@@ -415,25 +447,36 @@ export class LevelData {
   iterateBodies = () => {
     const bodiesMap = {};
     const metaMap = {};
+
     const allBodies = [];
     const gravityBodies = [];
     const reversableBodies = [];
     const interruptsBodies = [];
+    const fixedRotationBodies = [];
+
     const histories = {};
 
     for (let bodyId in this.initBodies) {
       const { body, meta } = this.initBodies[bodyId](this.normalize);
-      const { gravity, reversable, interrupts } = meta;
+      const { gravity, reversable, interrupts, fixedRotation } = meta;
+
       if (gravity) {
         gravityBodies.push(bodyId);
       }
+
       if (reversable) {
         reversableBodies.push(bodyId);
         histories[bodyId] = new BodyHistory(body);
       }
+
       if (interrupts) {
         interruptsBodies.push(bodyId);
       }
+
+      if (fixedRotation) {
+        fixedRotationBodies.push(bodyId);
+      }
+
       bodiesMap[bodyId] = body;
       metaMap[bodyId] = meta;
       allBodies.push(body);
@@ -441,14 +484,35 @@ export class LevelData {
 
     this.bodies = bodiesMap;
     this.metaMap = metaMap;
+
     this.gravityBodies = gravityBodies;
     this.reversableBodies = reversableBodies;
     this.interruptsBodies = interruptsBodies;
+    this.fixedRotationBodies = fixedRotationBodies;
+
     this.histories = histories;
 
     // Hack to allow interrupts to be generated automagically
     this.collisions.interruptReverse[1] = interruptsBodies;
 
     World.add(this.engine.world, allBodies);
+  };
+
+  isPushableSelected = () => {
+    const id = this.objects[this.activeObjectIndex];
+    const { meta } = this.metaMap[id];
+    return !!meta;
+  };
+
+  switchToPushableObject = () => {
+    for (let id of this.gravityBodies) {
+      Body.setStatic(this.bodies[id], false);
+    }
+  };
+
+  switchFromPushableObject = () => {
+    for (let id of this.gravityBodies) {
+      Body.setStatic(this.bodies[id], true);
+    }
   };
 }

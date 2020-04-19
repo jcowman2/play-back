@@ -5,8 +5,22 @@ import {
   SPIRIT_FILL,
   WALL_FILL_UNSELECTED,
   GOAL_FILL,
-  WALL_FILL_SELECTED
+  WALL_FILL_SELECTED,
+  PUSHER_FILL,
+  PUSHER_FILL_SELECTED,
+  STATIC_WALL_FILL
 } from "../constants";
+
+// All meta props:
+// - gravity
+// - reversable
+// - live
+// - color
+// - selectable
+// - selectColor
+// - interrupts
+// - pushes
+// - fixedRotation
 
 const normalBody = func => tform => func(tform);
 
@@ -35,13 +49,14 @@ export const goal = (x, y, width) =>
     meta: {}
   }));
 
-const wallBase = ({ live, color, selectColor, selectable }) => (
-  x,
-  y,
-  width,
-  height,
-  angle = 0
-) =>
+const wallBase = ({
+  live,
+  color,
+  selectColor,
+  selectable,
+  pushes,
+  fixedRotation
+}) => (x, y, width, height, angle = 0) =>
   normalBody(t => ({
     body: Bodies.rectangle(t(x), t(y), t(width), t(height), {
       isStatic: true,
@@ -55,13 +70,26 @@ const wallBase = ({ live, color, selectColor, selectable }) => (
       color,
       selectColor,
       selectable,
+      pushes,
+      fixedRotation,
       interrupts: true
     }
   }));
 
 export const freezeWall = wallBase({
-  live: false,
   color: WALL_FILL_UNSELECTED,
   selectColor: WALL_FILL_SELECTED,
   selectable: true
+});
+
+export const pusherWall = wallBase({
+  color: PUSHER_FILL,
+  selectColor: PUSHER_FILL_SELECTED,
+  selectable: true,
+  fixedRotation: true,
+  pushes: true
+});
+
+export const staticWall = wallBase({
+  color: STATIC_WALL_FILL
 });
