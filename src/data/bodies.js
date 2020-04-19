@@ -63,8 +63,8 @@ const wallBase = ({
       angle,
       render: { fillStyle: color },
       friction: 0,
-      frictionAir: 0,
-      chamfer: {}
+      frictionAir: 0
+      // chamfer: {}
     }),
     meta: {
       live,

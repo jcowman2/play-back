@@ -35,6 +35,7 @@ function Level(props) {
   };
 
   const handleFreezeUnfreeze = () => {
+    console.log("SPACE PRESS");
     if (data.isFrozen) {
       // Hack to account for an odd race condition
       setTimeout(() => stageRef.current.unfreeze(), 1000);
@@ -58,6 +59,7 @@ function Level(props) {
   };
 
   const handleReverseKeyRelease = () => {
+    console.log("R RELEASE");
     stageRef.current.setReverse(false);
   };
 

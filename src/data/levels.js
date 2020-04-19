@@ -1,6 +1,7 @@
 import { LevelData } from "./levelData";
 import { spirit, freezeWall, goal, staticWall, pusherWall } from "./bodies";
 import { SPIRIT, GROUND, GOAL, PUSHER } from "../constants";
+import LevelApi from "../components/refactor/_levelApi";
 
 const DEFAULT_COLLIDER = {
   enterGoal: [SPIRIT, GOAL],
@@ -8,7 +9,7 @@ const DEFAULT_COLLIDER = {
 };
 
 export const PLAYGROUND = () =>
-  new LevelData(
+  new LevelApi(
     {
       spirit: spirit(50, 50, 2),
       ground: freezeWall(50, 90, 60, 2),
@@ -17,8 +18,8 @@ export const PLAYGROUND = () =>
       pusher: pusherWall(20, 80, 8, 8),
       goal: goal(90, 90, 4)
     },
-    [GROUND, "wall1", "wall2", PUSHER],
-    DEFAULT_COLLIDER
+    [GROUND, "wall1", "wall2", PUSHER]
+    // DEFAULT_COLLIDER
   );
 
 export const LANDER = () =>

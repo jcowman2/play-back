@@ -21,15 +21,30 @@ export const GROUND = "ground";
 export const GOAL = "goal";
 export const PUSHER = "pusher";
 
+export const GAME_EVENT = {
+  FREEZE: "freeze",
+  RESTART: "restart",
+  SELECT: "select",
+  REVERSE: "reverse",
+  FORWARD: "forward",
+  MOVE: "move",
+  MOVE_END: "moveEnd",
+  ROTATE: "rotate",
+  ROTATE_END: "rotateEnd"
+};
+
 export const UP = "up";
 export const DOWN = "down";
 export const LEFT = "left";
 export const RIGHT = "right";
+export const CW = "cw";
+export const CCW = "ccw";
 
+export const LEVEL_WIDTH = 700;
 export const LOOP_INTERVAL = 10;
 export const OBJ_VELOCITY = 500; // units per second
 export const OBJ_VELOCITY_ANGULAR = 20;
-export const MAX_SPEED = 3;
+export const MAX_SPEED = 10000;
 
 /* Spirit */
 export const GRAVITY_X = 0;
