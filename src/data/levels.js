@@ -19,39 +19,35 @@ export const PLAYGROUND = () =>
       goal: goal(90, 90, 4)
     },
     [GROUND, "wall1", "wall2", PUSHER]
-    // DEFAULT_COLLIDER
   );
 
 export const LANDER = () =>
-  new LevelData(
+  new LevelApi(
     {
       spirit: spirit(10, 10, 2),
       ground: freezeWall(42, 80, 80, 2),
       goal: goal(90, 90, 4)
     },
-    [GROUND],
-    DEFAULT_COLLIDER
+    [GROUND]
   );
 
 export const LANDERER = () =>
-  new LevelData(
+  new LevelApi(
     {
       spirit: spirit(10, 10, 2),
       ground: freezeWall(42, 80, 30, 2),
       goal: goal(90, 90, 4)
     },
-    [GROUND],
-    DEFAULT_COLLIDER
+    [GROUND]
   );
 
 export const PUSH = () =>
-  new LevelData(
+  new LevelApi(
     {
       spirit: spirit(20, 10, 2),
-      pusher: pusherWall(10, 30, 8, 8),
-      ground: staticWall(20, 30, 30, 30, 0.5),
+      pusher: pusherWall(10, 60, 8, 8),
+      ground: staticWall(20, 30, 30, 2, 0.5),
       goal: goal(90, 90, 4)
     },
-    [PUSHER],
-    DEFAULT_COLLIDER
+    [PUSHER]
   );
