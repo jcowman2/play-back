@@ -92,47 +92,7 @@ export class LevelData {
     this.engine = Engine.create();
     this.engine.world.gravity.scale = 0;
 
-    const bodiesMap = {};
-    const metaMap = {};
-
-    const allBodies = [];
-    const gravityBodies = [];
-    const reversableBodies = [];
-    const interruptsBodies = [];
-
-    const histories = {};
-
-    for (let bodyId in this.initBodies) {
-      const { body, meta } = this.initBodies[bodyId](this.normalize);
-      const { gravity, reversable, interrupts } = meta;
-
-      if (gravity) {
-        gravityBodies.push(bodyId);
-      }
-      if (reversable) {
-        reversableBodies.push(bodyId);
-        histories[bodyId] = new BodyHistory(body);
-      }
-      if (interrupts) {
-        interruptsBodies.push(bodyId);
-      }
-
-      bodiesMap[bodyId] = body;
-      metaMap[bodyId] = meta;
-      allBodies.push(body);
-    }
-
-    this.bodies = bodiesMap;
-    this.metaMap = metaMap;
-    this.gravityBodies = gravityBodies;
-    this.reversableBodies = reversableBodies;
-    this.interruptsBodies = interruptsBodies;
-    this.histories = histories;
-
-    // Hack to allow interrupts to be generated automagically
-    this.collisions.interruptReverse[1] = interruptsBodies;
-
-    World.add(this.engine.world, allBodies);
+    this.iterateBodies();
   };
 
   /**
@@ -319,6 +279,11 @@ export class LevelData {
    */
   setObjectVelocity = (vx, vy) => {
     const id = this.objects[this.activeObjectIndex];
+    const { live } = this.metaMap[id];
+    if (!live && !this.isFrozen) {
+      return;
+    }
+
     const body = this.bodies[id];
 
     if (!vx && !vy) {
@@ -346,6 +311,11 @@ export class LevelData {
    */
   setObjectAngularVelocity = va => {
     const id = this.objects[this.activeObjectIndex];
+    const { live } = this.metaMap[id];
+    if (!live && !this.isFrozen) {
+      return;
+    }
+
     const body = this.bodies[id];
 
     if (!va) {
@@ -382,6 +352,12 @@ export class LevelData {
     }
 
     this.frozenVelocities = frozenVelocities;
+
+    const activeId = this.objects[this.activeObjectIndex];
+    const { live } = this.metaMap[activeId];
+    if (!live) {
+      this.markActiveObject(activeId);
+    }
   };
 
   unfreeze = () => {
@@ -400,6 +376,12 @@ export class LevelData {
     }
 
     this.frozenVelocities = {};
+
+    const activeId = this.objects[this.activeObjectIndex];
+    const { live } = this.metaMap[activeId];
+    if (!live) {
+      this.unmarkObject(activeId);
+    }
   };
 
   /**
@@ -423,12 +405,50 @@ export class LevelData {
   };
 
   interruptReverse = () => {
-    console.log("IR enter");
     if (!this.isReverse) {
       return;
     }
-    console.log("IR pass");
 
     this.setReverse(false);
+  };
+
+  iterateBodies = () => {
+    const bodiesMap = {};
+    const metaMap = {};
+    const allBodies = [];
+    const gravityBodies = [];
+    const reversableBodies = [];
+    const interruptsBodies = [];
+    const histories = {};
+
+    for (let bodyId in this.initBodies) {
+      const { body, meta } = this.initBodies[bodyId](this.normalize);
+      const { gravity, reversable, interrupts } = meta;
+      if (gravity) {
+        gravityBodies.push(bodyId);
+      }
+      if (reversable) {
+        reversableBodies.push(bodyId);
+        histories[bodyId] = new BodyHistory(body);
+      }
+      if (interrupts) {
+        interruptsBodies.push(bodyId);
+      }
+      bodiesMap[bodyId] = body;
+      metaMap[bodyId] = meta;
+      allBodies.push(body);
+    }
+
+    this.bodies = bodiesMap;
+    this.metaMap = metaMap;
+    this.gravityBodies = gravityBodies;
+    this.reversableBodies = reversableBodies;
+    this.interruptsBodies = interruptsBodies;
+    this.histories = histories;
+
+    // Hack to allow interrupts to be generated automagically
+    this.collisions.interruptReverse[1] = interruptsBodies;
+
+    World.add(this.engine.world, allBodies);
   };
 }
