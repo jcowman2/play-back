@@ -142,4 +142,8 @@ export default class LevelApi {
   forward = () => {
     this.reversed = false;
   };
+
+  onSpiritOutOfBounds = () => {
+    this.restart();
+  };
 }

@@ -7,7 +7,8 @@ import {
   OBJ_VELOCITY,
   OBJ_VELOCITY_ANGULAR,
   SPIRIT,
-  GOAL
+  GOAL,
+  BOUND_GUTTER
 } from "../constants";
 import SelectableMovement from "./selectableMovement";
 import BodyHistory from "./bodyHistory";
@@ -131,6 +132,8 @@ export default class BodiesManager {
     this.updateHistories();
     this.updateReversables();
     this.updateFixedRotations();
+
+    this.checkSpiritOutOfBounds();
   };
 
   updatePushes = () => {
@@ -224,6 +227,17 @@ export default class BodiesManager {
     this.byTrait[FIXED_ROTATION].forEach(id => {
       Body.setAngle(this.bodyMap[id], 0);
     });
+  };
+
+  checkSpiritOutOfBounds = () => {
+    const { x, y } = this.bodyMap[SPIRIT].position;
+    const min = -this.normalize(BOUND_GUTTER);
+    const max = LEVEL_WIDTH + this.normalize(BOUND_GUTTER);
+
+    const outOfBounds = x <= min || y <= min || x >= max || y >= max;
+    if (outOfBounds) {
+      this.level.onSpiritOutOfBounds();
+    }
   };
 
   freeze = () => {

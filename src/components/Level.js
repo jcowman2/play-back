@@ -18,7 +18,6 @@ function Level(props) {
       return;
     }
     level.init(stageRef.current, () => {
-      level.teardown();
       onEnterGoal();
     });
     level.start();

@@ -45,6 +45,7 @@ export const LOOP_INTERVAL = 10;
 export const OBJ_VELOCITY = 500; // units per second
 export const OBJ_VELOCITY_ANGULAR = 20;
 export const MAX_SPEED = 10000;
+export const BOUND_GUTTER = 20;
 
 /* Spirit */
 export const GRAVITY_X = 0;
