@@ -9,6 +9,7 @@ function App() {
   const [level, setLevel] = React.useState(() =>
     PLAYABLE_LEVELS[levelIdx].level()
   );
+  const [animate, setAnimate] = React.useState(true);
 
   const [, forceUpdate] = React.useState(0);
 
@@ -16,6 +17,7 @@ function App() {
     level.teardown();
     setLevelIdx(idx);
     setLevel(PLAYABLE_LEVELS[idx].level());
+    setAnimate(true);
   };
 
   const handleEnterGoal = () => {
@@ -23,10 +25,12 @@ function App() {
   };
 
   const overlayString = `${levelIdx + 1}: ${PLAYABLE_LEVELS[levelIdx].name}`;
+  const monitorClass = "Monitor" + (animate ? " TurnOn" : "");
+  const overlayClass = "Overlay" + (animate ? " OverlayOn" : "");
 
   return (
     <div className="App">
-      <div className="Monitor TurnOn">
+      <div className={monitorClass}>
         <div className="Screen">
           <Level
             data={level}
@@ -36,7 +40,9 @@ function App() {
             onEnterGoal={handleEnterGoal}
           />
         </div>
-        <div class="Overlay">{overlayString}</div>
+        <div className={overlayClass} onAnimationEnd={() => setAnimate(false)}>
+          {overlayString}
+        </div>
       </div>
 
       <AdminKeyHandler onSetLevel={toLevel} />
