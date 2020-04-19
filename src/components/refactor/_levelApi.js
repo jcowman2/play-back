@@ -111,8 +111,12 @@ export default class LevelApi {
     }
   };
 
-  restart = () => {
+  teardown = () => {
     this.loop.teardown();
+  };
+
+  restart = () => {
+    this.teardown();
     this.start();
   };
 

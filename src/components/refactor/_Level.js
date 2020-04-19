@@ -5,11 +5,12 @@ import LevelKeyHandler from "./_LevelKeyHandler";
  *
  * @param {React.PropsWithChildren<{
  *  data: LevelApi,
+ *  onEnterGoal: () => void,
  *  onUpdateData: (data: LevelData) => void
  * }>} props
  */
 function Level(props) {
-  const { data: level } = props;
+  const { data: level, onEnterGoal } = props;
   const stageRef = React.useRef();
 
   React.useEffect(() => {
@@ -17,11 +18,11 @@ function Level(props) {
       return;
     }
     level.init(stageRef.current, () => {
-      console.log("YOU MADE IT TO THE GOAL!");
-      level.restart();
+      level.teardown();
+      onEnterGoal();
     });
     level.start();
-  }, [stageRef, level]);
+  }, [stageRef, level, onEnterGoal]);
 
   return (
     <>
