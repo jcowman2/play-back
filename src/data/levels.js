@@ -45,3 +45,9 @@ export const PUSH = () =>
     },
     [PUSHER]
   );
+
+export const PLAYABLE_LEVELS = [
+  { name: "Lander", level: LANDER },
+  { name: "Landerer", level: LANDERER },
+  { name: "Push", level: PUSH }
+];
