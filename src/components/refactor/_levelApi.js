@@ -89,6 +89,8 @@ export default class LevelApi {
         return;
       case GAME_EVENT.RESTART:
         return this.restart();
+      case GAME_EVENT.SELECT:
+        return this.bodies.selectNext();
       default:
         console.log("not handled", type);
     }

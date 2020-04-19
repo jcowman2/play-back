@@ -18,8 +18,9 @@ import {
 // - fixedRotation
 
 const GRAVITY = "gravity";
+const SELECTABLE = "selectable";
 
-export const TRAITS = [GRAVITY];
+export const TRAITS = [GRAVITY, SELECTABLE];
 
 export default class BodiesManager {
   /** @type LevelApi */
@@ -76,22 +77,13 @@ export default class BodiesManager {
   start = () => {
     this.frozenVelocities = {};
     this.activeObjectIndex = 0;
-    this.markActiveObject(this.level.objectSelectOrder[0]);
-  };
-
-  /**
-   * @param {string} id
-   */
-  markActiveObject = id => {
-    const body = this.bodyMap[id];
-    const { selectColor } = this.metaMap[id];
-    body.render.fillStyle = selectColor;
   };
 
   normalize = unit => (unit / 100) * LEVEL_WIDTH;
 
   update = () => {
     this.updateGravityBodies();
+    this.updateSelectables();
   };
 
   updateGravityBodies = () => {
@@ -112,6 +104,22 @@ export default class BodiesManager {
     });
   };
 
+  updateSelectables = () => {
+    const activeId = this.level.objectSelectOrder[this.activeObjectIndex];
+
+    this.byTrait[SELECTABLE].forEach(id => {
+      const body = this.bodyMap[id];
+      const { color, selectColor, live } = this.metaMap[id];
+
+      let setColor = color;
+      if (id === activeId && !!live !== this.level.frozen) {
+        setColor = selectColor;
+      }
+
+      body.render.fillStyle = setColor;
+    });
+  };
+
   freeze = () => {
     const frozenVelocities = {};
 
@@ -125,8 +133,6 @@ export default class BodiesManager {
     });
 
     this.frozenVelocities = frozenVelocities;
-
-    // TODO - mark object
   };
 
   unfreeze = () => {
@@ -138,7 +144,13 @@ export default class BodiesManager {
       }
       // TODO - disable static sometimes
     });
+  };
 
-    // TODO - unmark object
+  selectNext = () => {
+    let newIdx = this.activeObjectIndex + 1;
+    if (newIdx >= this.level.objectSelectOrder.length) {
+      newIdx = 0;
+    }
+    this.activeObjectIndex = newIdx;
   };
 }
