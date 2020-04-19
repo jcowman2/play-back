@@ -40,6 +40,9 @@ function Stage(props, ref) {
     },
     unfreeze: () => {
       levelData.unfreeze();
+    },
+    setReverse: isReverse => {
+      levelData.setReverse(isReverse);
     }
   }));
 

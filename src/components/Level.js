@@ -53,6 +53,14 @@ function Level(props) {
     handleRestart();
   };
 
+  const handleReverseKeyPress = () => {
+    stageRef.current.setReverse(true);
+  };
+
+  const handleReverseKeyRelease = () => {
+    stageRef.current.setReverse(false);
+  };
+
   return (
     <>
       <Stage
@@ -72,6 +80,8 @@ function Level(props) {
         onMoveKeyRelease={handleMoveKeyRelease}
         onRotateKeyPress={handleRotateKeyPress}
         onRotateKeyRelease={handleRotateKeyRelease}
+        onReverseKeyPress={handleReverseKeyPress}
+        onReverseKeyRelease={handleReverseKeyRelease}
       />
     </>
   );

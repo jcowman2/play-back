@@ -15,7 +15,8 @@ const KEYDOWN_KEYS = [
   "down",
   "right",
   "q",
-  "e"
+  "e",
+  "shift"
 ];
 
 const KEYUP_KEYS = [
@@ -28,7 +29,8 @@ const KEYUP_KEYS = [
   "down",
   "right",
   "q",
-  "e"
+  "e",
+  "shift"
 ];
 
 /**
@@ -41,6 +43,8 @@ const KEYUP_KEYS = [
  *  onMoveKeyRelease: (direction: string) => void,
  *  onRotateKeyPress: (clockwise: boolean) => void,
  *  onRotateKeyRelease: (clockwise: boolean) => void
+ *  onReverseKeyPress: () => void,
+ *  onReverseKeyRelease: () => void
  * }>} props
  */
 function LevelKeyHandler(props) {
@@ -51,7 +55,9 @@ function LevelKeyHandler(props) {
     onMoveKeyPress,
     onMoveKeyRelease,
     onRotateKeyPress,
-    onRotateKeyRelease
+    onRotateKeyRelease,
+    onReverseKeyPress,
+    onReverseKeyRelease
   } = props;
 
   return (
@@ -82,6 +88,8 @@ function LevelKeyHandler(props) {
               return onRotateKeyPress(false);
             case "e":
               return onRotateKeyPress(true);
+            case "shift":
+              return onReverseKeyPress();
             default:
               return;
           }
@@ -108,6 +116,8 @@ function LevelKeyHandler(props) {
               return onRotateKeyRelease(false);
             case "e":
               return onRotateKeyRelease(true);
+            case "shift":
+              return onReverseKeyRelease();
             default:
               return;
           }

@@ -8,6 +8,7 @@ import {
   WALL_FILL_UNSELECTED,
   GAME_BG
 } from "../constants";
+import BodyHistory from "./bodyHistory";
 
 const DEFAULT_WIDTH = 700;
 
@@ -42,6 +43,9 @@ export class LevelData {
   /** @type number */
   lastRenderedTime;
 
+  /** @type number */
+  playTime;
+
   /** @type {{ [id: string]: Matter.Vector }}*/
   frozenVelocities;
 
@@ -50,6 +54,15 @@ export class LevelData {
 
   /** @type {{ enterGoal: string[] }} */
   collisions;
+
+  /** @type string[] */
+  reversableBodies;
+
+  /** @type {{ [id: string]: BodyHistory }} */
+  histories;
+
+  /** @type boolean */
+  isReverse;
 
   /**
    *
@@ -68,9 +81,10 @@ export class LevelData {
   }
 
   preInit = () => {
-    this.isFrozen = true;
+    this.isFrozen = false;
     this.frozenVelocities = {};
     this.lastRenderedTime = 0;
+    this.playTime = 0;
     this.activeObjectIndex = 0;
 
     this.engine = Engine.create();
@@ -79,11 +93,20 @@ export class LevelData {
     const bodiesMap = {};
     const allBodies = [];
     const gravityBodies = [];
+    const reversableBodies = [];
+    const histories = {};
+
     for (let bodyId in this.initBodies) {
-      const { body, gravity } = this.initBodies[bodyId](this.normalize);
+      const { body, gravity, reversable } = this.initBodies[bodyId](
+        this.normalize
+      );
 
       if (gravity) {
         gravityBodies.push(bodyId);
+      }
+      if (reversable) {
+        reversableBodies.push(bodyId);
+        histories[bodyId] = new BodyHistory(body);
       }
 
       bodiesMap[bodyId] = body;
@@ -92,6 +115,9 @@ export class LevelData {
 
     this.bodies = bodiesMap;
     this.gravityBodies = gravityBodies;
+    this.reversableBodies = reversableBodies;
+    this.histories = histories;
+
     World.add(this.engine.world, allBodies);
   };
 
@@ -119,6 +145,7 @@ export class LevelData {
     this.markActiveObject(this.objects[this.activeObjectIndex]);
 
     Render.world(this.render);
+    this.freeze();
   };
 
   /**
@@ -152,7 +179,12 @@ export class LevelData {
     const delta = newTime - this.lastRenderedTime;
     this.lastRenderedTime = newTime;
 
-    this.updateGravity(delta);
+    if (this.isReverse) {
+      this.updateReverse(delta);
+    } else {
+      this.updateGravity(delta);
+      this.updateHistories(delta);
+    }
 
     Engine.update(this.engine, delta);
     Render.world(this.render);
@@ -171,6 +203,31 @@ export class LevelData {
         };
         Body.applyForce(body, body.position, force);
       }
+    }
+  };
+
+  updateHistories = delta => {
+    if (this.isFrozen) {
+      return;
+    }
+    this.playTime += delta;
+    for (let id in this.histories) {
+      this.histories[id].log(this.playTime);
+    }
+  };
+
+  updateReverse = delta => {
+    if (!this.isFrozen) {
+      return;
+    }
+    this.playTime -= delta;
+
+    if (this.playTime <= 0) {
+      this.playTime = 0;
+    }
+
+    for (let id in this.histories) {
+      this.histories[id].revertTo(this.playTime);
     }
   };
 
@@ -282,7 +339,7 @@ export class LevelData {
       frozenVelocities[id] = body.velocity;
 
       Body.setVelocity(body, { x: 0, y: 0 });
-      Body.setDensity(body, DENSITY_FREEZE);
+      Body.setStatic(body, true);
     }
 
     this.frozenVelocities = frozenVelocities;
@@ -297,11 +354,24 @@ export class LevelData {
     for (let id of this.gravityBodies) {
       if (this.frozenVelocities[id]) {
         const body = this.bodies[id];
+        Body.setStatic(body, false);
         Body.setVelocity(body, this.frozenVelocities[id]);
-        Body.setDensity(body, DENSITY_UNFREEZE);
       }
     }
 
     this.frozenVelocities = {};
+  };
+
+  /**
+   * @param {boolean} isReverse
+   */
+  setReverse = isReverse => {
+    if (isReverse === this.isReverse) {
+      return;
+    }
+    this.isReverse = isReverse;
+    if (isReverse) {
+      this.freeze();
+    }
   };
 }

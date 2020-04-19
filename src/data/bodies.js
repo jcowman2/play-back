@@ -18,7 +18,9 @@ export const spirit = (x, y, radius = 10) =>
       frictionAir: REGULAR_AIR_FRICTION,
       density: DENSITY_FREEZE
     }),
-    gravity: true
+
+    gravity: true,
+    reversable: true
   }));
 
 export const wall = (x, y, width, height, angle = 0) =>
@@ -29,8 +31,7 @@ export const wall = (x, y, width, height, angle = 0) =>
       render: { fillStyle: WALL_FILL_UNSELECTED },
       friction: 0,
       frictionAir: 0
-    }),
-    gravity: false
+    })
   }));
 
 export const goal = (x, y, width) =>
