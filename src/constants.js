@@ -12,6 +12,10 @@ export const WALL_FILL_UNSELECTED = MID_LIGHT;
 export const WALL_FILL_SELECTED = LIGHT;
 export const GOAL_FILL = GREEN;
 
+export const SPIRIT = "spirit";
+export const GROUND = "ground";
+export const GOAL = "goal";
+
 export const UP = "up";
 export const DOWN = "down";
 export const LEFT = "left";
@@ -19,7 +23,7 @@ export const RIGHT = "right";
 
 export const LOOP_INTERVAL = 10;
 export const OBJ_VELOCITY = 500; // units per second
-export const OBJ_VELOCITY_ANGULAR = 75;
+export const OBJ_VELOCITY_ANGULAR = 20;
 
 /* Spirit */
 export const GRAVITY_X = 0;

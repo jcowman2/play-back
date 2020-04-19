@@ -1,10 +1,10 @@
 import React from "react";
 import Level from "./components/Level";
 import Debug from "./components/Debug";
-import { PLAYGROUND } from "./data/levels";
+import { LANDERER } from "./data/levels";
 
 function App() {
-  const level = React.useRef(PLAYGROUND());
+  const level = React.useRef(LANDERER());
   const [, forceUpdate] = React.useState(0);
   return (
     <div className="App">

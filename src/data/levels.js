@@ -1,9 +1,11 @@
 import { LevelData } from "./levelData";
 import { spirit, freezeWall, goal } from "./bodies";
+import { SPIRIT, GROUND, GOAL } from "../constants";
 
-const SPIRIT = "spirit";
-const GROUND = "ground";
-const GOAL = "goal";
+const DEFAULT_COLLIDER = {
+  enterGoal: [SPIRIT, GOAL],
+  interruptReverse: [[SPIRIT]]
+};
 
 export const PLAYGROUND = () =>
   new LevelData(
@@ -15,8 +17,27 @@ export const PLAYGROUND = () =>
       goal: goal(90, 90, 4)
     },
     [GROUND, "wall1", "wall2"],
+    DEFAULT_COLLIDER
+  );
+
+export const LANDER = () =>
+  new LevelData(
     {
-      enterGoal: [SPIRIT, GOAL],
-      interruptReverse: [[SPIRIT]]
-    }
+      spirit: spirit(10, 10, 2),
+      ground: freezeWall(42, 80, 80, 2),
+      goal: goal(90, 90, 4)
+    },
+    [GROUND],
+    DEFAULT_COLLIDER
+  );
+
+export const LANDERER = () =>
+  new LevelData(
+    {
+      spirit: spirit(10, 10, 2),
+      ground: freezeWall(42, 80, 30, 2),
+      goal: goal(90, 90, 4)
+    },
+    [GROUND],
+    DEFAULT_COLLIDER
   );
