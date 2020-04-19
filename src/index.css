@@ -1,3 +1,8 @@
+@font-face {
+  font-family: "Zig";
+  src: local("Zig"), url(./assets/zig/zig_____.ttf) format("truetype");
+}
+
 html,
 body {
   height: 100%;
@@ -28,4 +33,15 @@ code {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.TutorialSlide {
+  font-family: "Zig";
+  font-size: 1.6em;
+  padding-left: 10%;
+  padding-right: 10%;
+}
+
+.TutorialSlide div {
+  margin-top: 10%;
 }

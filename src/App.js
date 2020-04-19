@@ -3,10 +3,12 @@ import Level from "./components/Level";
 import { PLAYABLE_LEVELS } from "./data/levels";
 import AdminKeyHandler from "./components/AdminKeyHandler";
 import "./CRT.scss";
+import "./assets/zig/zig_____.ttf";
+import { SLIDES } from "./components/Slides";
 
 const useCRT = () => {
-  const [animate, setAnimate] = React.useState(false);
-  const [overlayText, setOverlayText] = React.useState(null);
+  const [animate, setAnimate] = React.useState(true);
+  const [overlayText, setOverlayText] = React.useState("INPUT");
 
   const [overlayTextDuration, setOverlayTextDuration] = React.useState(3000);
 
@@ -34,6 +36,8 @@ function App() {
   const [levelIdx, setLevelIdx] = React.useState();
   const [level, setLevel] = React.useState();
   const [, forceUpdate] = React.useState(0);
+  const [slideIdx, setSlideIdx] = React.useState(0);
+
   const { setAnimate, monitorClass, overlayText, setOverlayText } = useCRT();
 
   const toLevel = idx => {
@@ -51,11 +55,13 @@ function App() {
     toLevel(levelIdx + 1);
   };
 
+  const Slide = SLIDES[slideIdx];
+
   return (
     <div className="App">
       <div className={monitorClass} onAnimationEnd={() => setAnimate(false)}>
         <div className="Screen">
-          {level && (
+          {level ? (
             <Level
               data={level}
               onUpdateData={() => {
@@ -63,6 +69,8 @@ function App() {
               }}
               onEnterGoal={handleEnterGoal}
             />
+          ) : (
+            <Slide />
           )}
         </div>
         <div className="Overlay">{overlayText}</div>
