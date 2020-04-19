@@ -24,8 +24,9 @@ import BodyHistory from "../../data/bodyHistory";
 const GRAVITY = "gravity";
 const SELECTABLE = "selectable";
 const REVERSABLE = "reversable";
+const FIXED_ROTATION = "fixedRotation";
 
-export const TRAITS = [GRAVITY, SELECTABLE, REVERSABLE];
+export const TRAITS = [GRAVITY, SELECTABLE, REVERSABLE, FIXED_ROTATION];
 
 export default class BodiesManager {
   /** @type LevelApi */
@@ -108,6 +109,7 @@ export default class BodiesManager {
     this.updateSelectables();
     this.updateHistories();
     this.updateReversables();
+    this.updateFixedRotations();
   };
 
   updatePushes = () => {
@@ -148,7 +150,7 @@ export default class BodiesManager {
 
     this.byTrait[SELECTABLE].forEach(id => {
       const body = this.bodyMap[id];
-      const { color, selectColor, live } = this.metaMap[id];
+      const { color, selectColor, live, fixedRotation } = this.metaMap[id];
 
       const mvmt = this.selectMovement;
       if (!mvmt.isMoving() && !body.isStatic) {
@@ -164,7 +166,10 @@ export default class BodiesManager {
         if (mvmt.isMoving()) {
           Body.setStatic(body, false);
           Body.setVelocity(body, mvmt.getVelocity());
-          Body.setAngularVelocity(body, mvmt.getAngularVelocity());
+
+          if (!fixedRotation) {
+            Body.setAngularVelocity(body, mvmt.getAngularVelocity());
+          }
         }
       }
 
@@ -192,6 +197,12 @@ export default class BodiesManager {
     for (let id in this.histories) {
       this.histories[id].revertTo(playTime);
     }
+  };
+
+  updateFixedRotations = () => {
+    this.byTrait[FIXED_ROTATION].forEach(id => {
+      Body.setAngle(this.bodyMap[id], 0);
+    });
   };
 
   freeze = () => {

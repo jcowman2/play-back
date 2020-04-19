@@ -1,4 +1,4 @@
-import { Engine, World, Render, Events } from "matter-js";
+import { Engine, World, Render } from "matter-js";
 import { GAME_BG, LEVEL_WIDTH, LOOP_INTERVAL } from "../../constants";
 
 export default class LoopManager {
