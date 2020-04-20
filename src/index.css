@@ -45,3 +45,19 @@ code {
 .TutorialSlide div {
   margin-top: 10%;
 }
+
+.InstructionOverlay {
+  font-family: "Zig";
+  color: white;
+  position: absolute;
+  font-size: 1em;
+  opacity: 0.5;
+}
+
+.InstructionOverlay div {
+  position: relative;
+}
+
+.InstructionOverlay div div {
+  margin-top: 20px;
+}

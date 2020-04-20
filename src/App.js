@@ -32,6 +32,30 @@ const useCRT = () => {
 
 const formatLevelName = idx => `${idx + 1}: ${PLAYABLE_LEVELS[idx].name}`;
 
+const INSTRUCTION_OVERLAYS = [
+  <div style={{ left: 400, top: 50, maxWidth: 300 }}>
+    <div>Try to get the ball into the goal.</div>
+    <div>Use WASD to move the platform, and QE to rotate it.</div>
+    <div>Hit play/pause with SPACE.</div>
+  </div>,
+  <div style={{ left: 300, top: 150, maxWidth: 400 }}>
+    <div>You can use time to your advantage!</div>
+  </div>,
+  <div style={{ left: 300, top: 100, maxWidth: 400 }}>
+    <div>
+      Red walls can push the orb around when time is stopped, but they can't
+      leave their area.
+    </div>
+  </div>,
+  <div style={{ left: 220, top: 10, maxWidth: 400 }}>
+    <div>Hold SHIFT to rewind!</div>
+  </div>,
+  <div style={{ left: 220, top: 10, maxWidth: 400 }}>
+    <div>Press CTRL to switch control between blocks.</div>
+    <div>Some blocks can only rotate in place.</div>
+  </div>
+];
+
 function App() {
   const [levelIdx, setLevelIdx] = React.useState();
   const [level, setLevel] = React.useState();
@@ -85,13 +109,18 @@ function App() {
       <div className={monitorClass} onAnimationEnd={() => setAnimate(false)}>
         <div className="Screen">
           {level ? (
-            <Level
-              data={level}
-              onUpdateData={() => {
-                forceUpdate(f => f + 1);
-              }}
-              onEnterGoal={handleEnterGoal}
-            />
+            <>
+              <div className="InstructionOverlay">
+                {INSTRUCTION_OVERLAYS[levelIdx]}
+              </div>
+              <Level
+                data={level}
+                onUpdateData={() => {
+                  forceUpdate(f => f + 1);
+                }}
+                onEnterGoal={handleEnterGoal}
+              />
+            </>
           ) : (
             Slide
           )}
