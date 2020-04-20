@@ -1,3 +1,5 @@
+export const DEBUG = false;
+
 // http://mycours.es/crc/00C90226
 const DARK = "#03171B";
 const MID_DARK = "#1D3742";

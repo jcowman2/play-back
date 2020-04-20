@@ -4,7 +4,7 @@ import { PLAYABLE_LEVELS } from "./data/levels";
 import AdminKeyHandler from "./components/AdminKeyHandler";
 import "./CRT.scss";
 import "./assets/zig/zig_____.ttf";
-import { SLIDES } from "./components/Slides";
+import { SLIDES, EndSlide } from "./components/Slides";
 
 const useCRT = () => {
   const [animate, setAnimate] = React.useState(true);
@@ -52,10 +52,33 @@ function App() {
   };
 
   const handleEnterGoal = () => {
-    toLevel(levelIdx + 1);
+    if (levelIdx === PLAYABLE_LEVELS.length - 1) {
+      setLevel(null);
+      setSlideIdx(-1);
+    } else {
+      toLevel(levelIdx + 1);
+    }
   };
 
-  const Slide = SLIDES[slideIdx];
+  const handleAnyKey = () => {
+    if (level) {
+      return;
+    }
+    if (slideIdx === SLIDES.length - 1) {
+      toLevel(0);
+    } else {
+      setSlideIdx(i => i + 1);
+    }
+  };
+
+  const totalRetries = 0;
+
+  const Slide =
+    slideIdx < 0 ? (
+      <EndSlide totalRetries={totalRetries} />
+    ) : (
+      SLIDES[slideIdx]()
+    );
 
   return (
     <div className="App">
@@ -70,13 +93,13 @@ function App() {
               onEnterGoal={handleEnterGoal}
             />
           ) : (
-            <Slide />
+            Slide
           )}
         </div>
         <div className="Overlay">{overlayText}</div>
       </div>
 
-      <AdminKeyHandler onSetLevel={toLevel} />
+      <AdminKeyHandler onSetLevel={toLevel} onAnyKey={handleAnyKey} />
     </div>
   );
 }
