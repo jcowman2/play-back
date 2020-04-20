@@ -40,6 +40,7 @@ const INSTRUCTION_OVERLAYS = [
   </div>,
   <div style={{ left: 300, top: 150, maxWidth: 400 }}>
     <div>You can use time to your advantage!</div>
+    <div>Press R to retry.</div>
   </div>,
   <div style={{ left: 300, top: 100, maxWidth: 400 }}>
     <div>
